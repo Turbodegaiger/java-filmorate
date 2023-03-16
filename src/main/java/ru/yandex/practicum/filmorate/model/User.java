@@ -5,15 +5,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 @Data
 @NoArgsConstructor
 public class User {
     private int id;
-    @NonNull
+    @Email
     private String email;
-    @NonNull
+    @NotBlank
     private String login;
     private String name;
     @JsonFormat(pattern="yyyy-MM-dd")

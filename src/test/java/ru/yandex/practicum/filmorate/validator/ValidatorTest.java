@@ -57,19 +57,27 @@ public class ValidatorTest {
             builder.append("A");
         }
         String description = builder.toString();
-        Film film1 = new Film("");
-        film1.setDuration(Duration.ofMinutes(90));
-        Film film2 = new Film("1");
-        film2.setDuration(Duration.ofMinutes(90));
+        Film film1 = new Film();
+        film1.setName("");
+        film1.setDescription("qeq");
+        film1.setDuration(90L);
+        Film film2 = new Film();
+        film2.setName("1");
+        film2.setDuration(90L);
         film2.setDescription(description);
-        Film film3 = new Film("2");
-        film3.setDuration(Duration.ZERO);
-        Film film4 = new Film("3");
+        Film film3 = new Film();
+        film3.setName("2");
+        film3.setDescription("qeq");
+        film3.setDuration(0L);
+        Film film4 = new Film();
+        film4.setName("3");
+        film4.setDescription("qeq");
         film4.setReleaseDate(DateUtility.formatter("1895-11-27"));
-        film4.setDuration(Duration.ofMinutes(90));
-        okFilm = new Film("film");
+        film4.setDuration(90L);
+        okFilm = new Film();
+        okFilm.setName("film");
         okFilm.setReleaseDate(DateUtility.formatter("1895-11-28"));
-        okFilm.setDuration(Duration.ofMinutes(1));
+        okFilm.setDuration(1L);
         okFilm.setDescription("BEST FILM EVAR");
 
         invalidFilms.add(null);
@@ -80,13 +88,25 @@ public class ValidatorTest {
     }
 
     private void createUsers() {
-        okUser = new User("alibaba@40rogues.com", "XXXalibabaXXX");
+        okUser = new User();
+        okUser.setEmail("alibaba@40rogues.com");
+        okUser.setLogin("XXXalibabaXXX");
         okUser.setBirthday(DateUtility.formatter("1997-10-10"));
-        User user1 = new User("", "emptyEmail");
-        User user2 = new User("abyrvalg", "sharikov");
-        User user3 = new User("chupakabra@mail.com", "space login");
-        User user4 = new User("chupakabrenok@mail.com", "");
-        User user5 = new User("iwantcyberpunkeverywhere@cyber.com", "silverhand");
+        User user1 = new User();
+        user1.setEmail("");
+        user1.setLogin("emptyEmail");
+        User user2 = new User();
+        user2.setEmail("abyrvalg");
+        user2.setLogin("sharikov");
+        User user3 = new User();
+        user3.setEmail("chupakabra@mail.com");
+        user3.setLogin("space login");
+        User user4 = new User();
+        user4.setEmail("chupakabrenok@mail.com");
+        user4.setLogin("");
+        User user5 = new User();
+        user5.setEmail("iwantcyberpunkeverywhere@cyber.com");
+        user5.setLogin("silverhand");
         user5.setBirthday(DateUtility.formatter("2077-11-20"));
 
         invalidUsers.add(user1);

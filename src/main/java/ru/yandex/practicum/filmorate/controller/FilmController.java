@@ -46,7 +46,8 @@ public class FilmController {
     }
 
     private int idGenerator() {
-        log.info("Генерируется id. Его номер - {}.", idCounter+1);
-        return ++idCounter;
+        idCounter++;
+        log.info("Сгенерирован id с номером: {}.", idCounter);
+        return idCounter;
     }
 }
