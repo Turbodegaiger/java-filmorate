@@ -1,52 +1,73 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.validator.Validator;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
+@RequestMapping("/users")
 @Slf4j
 public class UserController {
-    private final HashMap<Integer, User> users = new HashMap<>();
-    private int idCounter;
+    final UserStorage userStorage;
+    final UserService userService;
 
-    @PostMapping(value = "/users")
+    @Autowired
+    public UserController(UserStorage userStorage, UserService userService) {
+        this.userStorage = userStorage;
+        this.userService = userService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public User addUser(@RequestBody User user) {
-        log.info("Принят запрос на добавление нового пользователя {}.", user);
-        Validator.validate(user);
-        user.setId(idGenerator());
-        users.put(user.getId(), user);
-        log.info("Создан пользователь с id {}.", user.getId());
-        return user;
+        return userStorage.addUser(user);
     }
 
-    @GetMapping("/users")
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<User> getUsers() {
-        log.info("Принят запрос на получение списка пользователей: {}.", users.values());
-        return new ArrayList<>(users.values());
+        return userStorage.getUsers();
     }
 
-    @PutMapping(value = "/users")
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUser(@PathVariable int id) {
+        return userStorage.getUser(id);
+    }
+
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
     public User updateUser(@RequestBody User user) {
-        log.info("Принят запрос на обновление пользователя.");
-        if (!users.containsKey(user.getId())) {
-            log.info("Обновляемый пользователь НЕ найден.");
-            throw new NotFoundException();
-        }
-        Validator.validate(user);
-        users.replace(user.getId(), user);
-        log.info("Обновлён пользователь с id {}.", user.getId());
-        return user;
+        return userStorage.updateUser(user);
     }
 
-    private int idGenerator() {
-        log.info("Генерируется id. Его номер - {}.", idCounter+1);
-        return ++idCounter;
+    @PutMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean addToFriends(@PathVariable int id, @PathVariable int friendId) {
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean removeFriend(@PathVariable int id, @PathVariable int friendId) {
+        return userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getFriendList(@PathVariable Integer id) {
+        return userService.getFriendList(id);
+    }
+
+    @GetMapping("{id}/friends/common/{otherId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<User> getMutualFriendsList(@PathVariable Integer id, @PathVariable Integer otherId) {
+        return userService.getMutualFriendsList(id, otherId);
     }
 }
