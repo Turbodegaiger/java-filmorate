@@ -1,16 +1,12 @@
 package ru.yandex.practicum.filmorate.validator;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.date.DateUtility;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import org.junit.jupiter.api.function.Executable;
 import ru.yandex.practicum.filmorate.model.User;
 
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 

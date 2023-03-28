@@ -10,6 +10,4 @@ public interface FilmStorage {
     List<Film> getFilms();
     Film updateFilm(Film film);
     Film getFilm(int filmId);
-    boolean checkContains(int filmId);
-    boolean checkContains(Film film);
 }

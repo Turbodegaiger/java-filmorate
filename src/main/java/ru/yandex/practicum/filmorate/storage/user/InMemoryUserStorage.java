@@ -17,49 +17,43 @@ public class InMemoryUserStorage implements UserStorage{
     private final HashMap<Integer, User> users = new HashMap<>();
     private int idCounter;
 
+    @Override
     public User addUser(User user) {
-        log.info("Принят запрос на добавление нового пользователя {}.", user);
         Validator.validate(user);
+        if (users.containsValue(user)) {
+            throw new AlreadyExistsException("Пользователь " + user.getEmail() + " уже существует.");
+        }
         user.setId(idGenerator());
         users.put(user.getId(), user);
         log.info("Создан пользователь с id {}.", user.getId());
         return user;
     }
 
+    @Override
     public List<User> getUsers() {
-        log.info("Принят запрос на получение списка пользователей: {}.", users.values());
         return new ArrayList<>(users.values());
     }
 
+    @Override
     public User getUser(int userId) {
-        log.info("Принят запрос на получение пользователя по id: {}.", userId);
-        checkContains(userId);
-        return users.get(userId);
+        User user = users.get(userId);
+        if (user == null) {
+            log.info("Пользователь {} НЕ найден.", userId);
+            throw new NotFoundException("Пользователь " + userId + " НЕ найден.");
+        }
+        return user;
     }
 
+    @Override
     public User updateUser(User user) {
-        log.info("Принят запрос на обновление пользователя {}.", user.getId());
-        checkContains(user);
+        if (!users.containsKey(user.getId())) {
+            log.info("Пользователь {} НЕ найден.", user.getId());
+            throw new NotFoundException("Пользователь " + user.getId() + " НЕ найден.");
+        }
         Validator.validate(user);
         users.replace(user.getId(), user);
         log.info("Обновлён пользователь с id {}.", user.getId());
         return user;
-    }
-
-    public boolean checkContains(int id) {
-        if (!users.containsKey(id)) {
-            log.info("Пользователь {} НЕ найден.", id);
-            throw new NotFoundException("Пользователь " + id + " не найден.");
-        }
-        return true;
-    }
-
-    public boolean checkContains(User user) {
-        if (!users.containsKey(user.getId())) {
-            log.info("Пользователь {} НЕ найден.", user.getId());
-            throw new NotFoundException("Пользователь " + user.getId() + " не найден.");
-        }
-        return true;
     }
 
     private int idGenerator() {

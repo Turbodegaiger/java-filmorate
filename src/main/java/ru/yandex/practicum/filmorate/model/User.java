@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -23,6 +24,7 @@ public class User {
     private String name;
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date birthday;
+    @JsonIgnore
     private Set<Integer> friends = new HashSet<>();
 
     @Override

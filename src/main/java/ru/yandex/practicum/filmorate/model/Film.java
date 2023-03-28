@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -8,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
@@ -22,11 +25,12 @@ public class Film {
     private String name;
     @Size(min = 1, max = 200)
     private String description;
-    @NonNull
+    @NotNull
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date releaseDate;
     @Min(1)
     private Long duration;
+    @JsonIgnore
     private Set<Integer> usersLiked = new HashSet<>();
 
     public Integer getLikesCount() {

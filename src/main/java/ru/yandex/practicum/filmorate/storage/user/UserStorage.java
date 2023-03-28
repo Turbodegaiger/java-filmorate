@@ -9,7 +9,4 @@ public interface UserStorage {
     List<User> getUsers();
     User updateUser(User user);
     User getUser(int userId);
-    boolean checkContains(User user);
-
-    boolean checkContains(int id);
 }
