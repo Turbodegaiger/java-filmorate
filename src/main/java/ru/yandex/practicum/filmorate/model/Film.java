@@ -23,12 +23,13 @@ public class Film {
     @Size(min = 1, max = 200)
     private String description;
     @NotNull
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date releaseDate;
     @Min(1)
     private Long duration;
     @JsonIgnore
     private Set<Integer> usersLiked = new HashSet<>();
+
     public Integer getLikesCount() {
         return usersLiked.size();
     }
