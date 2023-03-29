@@ -19,7 +19,7 @@ public class ValidatorTest {
     static User okUser;
 
     @Test
-    void ValidateFilmShouldThrowExceptionIfValuesIsNotCorrect() {
+    void validateFilmShouldThrowExceptionIfValuesIsNotCorrect() {
         createFilms();
         for(Film film : invalidFilms) {
             final ValidationException exception = assertThrows(ValidationException.class, () -> Validator.validate(film));
@@ -27,13 +27,13 @@ public class ValidatorTest {
     }
 
     @Test
-    void ValidateFilmShouldReturnTrueIfValuesIsCorrect() {
+    void validateFilmShouldReturnTrueIfValuesIsCorrect() {
         createFilms();
         assertTrue(Validator.validate(okFilm));
     }
 
     @Test
-    void ValidateUserShouldThrowExceptionIfValuesIsNotCorrect() {
+    void validateUserShouldThrowExceptionIfValuesIsNotCorrect() {
         createUsers();
         for(User user : invalidUsers) {
             final ValidationException exception = assertThrows(ValidationException.class, () -> Validator.validate(user));
@@ -41,7 +41,7 @@ public class ValidatorTest {
     }
 
     @Test
-    void ValidateUserShouldReturnTrueIfValuesIsCorrectAndSetLoginAsNameIfItDoesntExists() {
+    void validateUserShouldReturnTrueIfValuesIsCorrectAndSetLoginAsNameIfItDoesntExists() {
         createUsers();
         assertTrue(Validator.validate(okUser));
         assertEquals(okUser.getName(), okUser.getLogin());
