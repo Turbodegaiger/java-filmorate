@@ -27,12 +27,15 @@ public class UserService {
     public User addUser(User user) {
         return userStorage.addUser(user);
     }
+
     public List<User> getUsers() {
         return userStorage.getUsers();
     }
+
     public User getUser(int id) {
         return userStorage.getUser(id);
     }
+
     public User updateUser(User user) {
         return userStorage.updateUser(user);
     }

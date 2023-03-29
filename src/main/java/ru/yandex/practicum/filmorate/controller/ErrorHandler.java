@@ -32,7 +32,6 @@ public class ErrorHandler {
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleValidation(final Throwable exception) {
-        exception.getStackTrace();
         return new ErrorResponse("Возникла непредвиденная ошибка");
     }
 }

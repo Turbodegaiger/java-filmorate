@@ -52,16 +52,16 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public boolean likeFilm(@PathVariable int id, @PathVariable int userId) {
+    public void likeFilm(@PathVariable int id, @PathVariable int userId) {
         log.info("Получен запрос на лайк фильма {} пользователем {}.", id, userId);
-        return filmService.addLike(id, userId);
+        filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public boolean removeLikeFilm(@PathVariable int id, @PathVariable int userId) {
+    public void removeLikeFilm(@PathVariable int id, @PathVariable int userId) {
         log.info("Получен запрос на удаление лайка фильма {} пользователем {}.", id, userId);
-        return filmService.removeLike(id, userId);
+        filmService.removeLike(id, userId);
     }
 
     @GetMapping("/popular")

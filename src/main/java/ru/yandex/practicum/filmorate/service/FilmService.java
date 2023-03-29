@@ -28,17 +28,20 @@ public class FilmService {
     public Film addFilm(Film film) {
         return filmStorage.addFilm(film);
     }
+
     public List<Film> getFilms() {
         return filmStorage.getFilms();
     }
+
     public Film getFilm(int id) {
         return filmStorage.getFilm(id);
     }
+
     public Film updateFilm(Film film) {
         return filmStorage.updateFilm(film);
     }
 
-    public boolean addLike(int filmId, int userId) {
+    public void addLike(int filmId, int userId) {
         if (userStorage.getUser(userId) == null) {
             throw new NotFoundException("Пользователь " + userId + " НЕ найден.");
         }
@@ -48,10 +51,9 @@ public class FilmService {
             throw new AlreadyExistsException(String.format("Пользователь %s уже ставил лайк фильму %s", userId, filmId));
         }
         log.info("Фильму {} добавлен лайк пользователя {}.", filmId, userId);
-        return isAdded;
     }
 
-    public boolean removeLike(int filmId, int userId) {
+    public void removeLike(int filmId, int userId) {
         if (userStorage.getUser(userId) == null) {
             throw new NotFoundException("Пользователь " + userId + " НЕ найден.");
         }
@@ -61,7 +63,6 @@ public class FilmService {
             throw new NotFoundException(String.format("Пользователь %s не ставил лайк фильму %s", userId, filmId));
         }
         log.info("Лайк фильма {} пользователем {} удалён.", filmId, userId);
-        return isRemoved;
     }
 
     public List<Film> getMostlyPopularFilms(int count) {
