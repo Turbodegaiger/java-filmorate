@@ -47,7 +47,7 @@ public class UserService {
         if (!userStorage.getUser(userId).getFriends().add(friend) ||
             !userStorage.getUser(friend).getFriends().add(userId)) {
             throw new AlreadyExistsException(String.format("Пользователи %s и %s уже друзья.", userId, friend));
-        };
+        }
         log.info("Пользователи {} и {} теперь друзья.", friend, userId);
     }
 
@@ -81,7 +81,7 @@ public class UserService {
 
     private List<User> getUserListByIds(Collection<Integer> idList) {
         List<User> userList = new ArrayList<>();
-        for(Integer friendId : idList) {
+        for (Integer friendId : idList) {
             userList.add(userStorage.getUser(friendId));
         }
         return userList;
