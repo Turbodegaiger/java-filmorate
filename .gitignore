@@ -1,5 +1,10 @@
 HELP.md
 target/
+.github
+checkstyle.xml
+lombok.config
+suppressions.xml
+README.md
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
