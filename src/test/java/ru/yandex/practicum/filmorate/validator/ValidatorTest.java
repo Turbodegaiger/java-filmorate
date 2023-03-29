@@ -21,7 +21,7 @@ public class ValidatorTest {
     @Test
     void validateFilmShouldThrowExceptionIfValuesIsNotCorrect() {
         createFilms();
-        for(Film film : invalidFilms) {
+        for (Film film : invalidFilms) {
             final ValidationException exception = assertThrows(ValidationException.class, () -> Validator.validate(film));
         }
     }
@@ -35,7 +35,7 @@ public class ValidatorTest {
     @Test
     void validateUserShouldThrowExceptionIfValuesIsNotCorrect() {
         createUsers();
-        for(User user : invalidUsers) {
+        for (User user : invalidUsers) {
             final ValidationException exception = assertThrows(ValidationException.class, () -> Validator.validate(user));
         }
     }
