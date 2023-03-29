@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class UserServiceTest {
     UserService userService;
     List<User> users;
+    
     @BeforeEach
     void setParameters() {
         userService = new UserService(new InMemoryUserStorage());
