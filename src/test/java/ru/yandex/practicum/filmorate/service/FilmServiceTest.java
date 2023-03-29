@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -73,7 +72,6 @@ public class FilmServiceTest {
         filmService.addFilm(films.get(1));
         Assertions.assertEquals(filmService.getFilms(), films);
     }
-
 
     @Test
     void getFilmShouldReturnCorrectFilm() {

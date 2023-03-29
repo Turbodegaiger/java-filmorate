@@ -55,6 +55,7 @@ public class UserServiceTest {
         userService.addUser(users.get(0));
         Assertions.assertEquals(userService.getUser(1), users.get(0));
     }
+
     @Test
     void getUserShouldThrowExceptionIfNotFound() {
         userService.addUser(users.get(0));
@@ -76,6 +77,7 @@ public class UserServiceTest {
         updated.setBirthday(DateUtility.formatter("2000-11-11"));
         Assertions.assertEquals(userService.updateUser(updated), userService.getUser(1));
     }
+
     @Test
     void updateUserShouldThrowExceptionIfNotFound() {
         userService.addUser(users.get(0));
@@ -176,6 +178,7 @@ public class UserServiceTest {
         Assertions.assertEquals(userService.getMutualFriendsList(1,3), List.of(users.get(1)));
         Assertions.assertEquals(userService.getMutualFriendsList(1,3), List.of(users.get(1)));
     }
+
     @Test
     void getMutualFriendsListShouldThrowExceptionIfNotFound() {
         User user3 = new User();
@@ -209,6 +212,7 @@ public class UserServiceTest {
         userService.addFriend(3,2);
         Assertions.assertEquals(userService.getFriendList(3), users);
     }
+
     @Test
     void getFriendListShouldThrowExceptionIfNotFound() {
         User user3 = new User();
