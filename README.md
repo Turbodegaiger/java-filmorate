@@ -1,7 +1,7 @@
 # java-filmorate
 Template repository for Filmorate project.
 
-![Database scheme](docs/Filmorate db scheme.jpg)
+![Database scheme](docs/Filmorate-db-scheme.jpg)
 
 # SQL request examples
 Получение списка имён 10 пользователей c наибольшим числом друзей
