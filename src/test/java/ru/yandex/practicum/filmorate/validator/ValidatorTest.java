@@ -1,16 +1,12 @@
 package ru.yandex.practicum.filmorate.validator;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.date.DateUtility;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import org.junit.jupiter.api.function.Executable;
 import ru.yandex.practicum.filmorate.model.User;
 
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,29 +19,29 @@ public class ValidatorTest {
     static User okUser;
 
     @Test
-    void ValidateFilmShouldThrowExceptionIfValuesIsNotCorrect() {
+    void validateFilmShouldThrowExceptionIfValuesIsNotCorrect() {
         createFilms();
-        for(Film film : invalidFilms) {
+        for (Film film : invalidFilms) {
             final ValidationException exception = assertThrows(ValidationException.class, () -> Validator.validate(film));
         }
     }
 
     @Test
-    void ValidateFilmShouldReturnTrueIfValuesIsCorrect() {
+    void validateFilmShouldReturnTrueIfValuesIsCorrect() {
         createFilms();
         assertTrue(Validator.validate(okFilm));
     }
 
     @Test
-    void ValidateUserShouldThrowExceptionIfValuesIsNotCorrect() {
+    void validateUserShouldThrowExceptionIfValuesIsNotCorrect() {
         createUsers();
-        for(User user : invalidUsers) {
+        for (User user : invalidUsers) {
             final ValidationException exception = assertThrows(ValidationException.class, () -> Validator.validate(user));
         }
     }
 
     @Test
-    void ValidateUserShouldReturnTrueIfValuesIsCorrectAndSetLoginAsNameIfItDoesntExists() {
+    void validateUserShouldReturnTrueIfValuesIsCorrectAndSetLoginAsNameIfItDoesntExists() {
         createUsers();
         assertTrue(Validator.validate(okUser));
         assertEquals(okUser.getName(), okUser.getLogin());
