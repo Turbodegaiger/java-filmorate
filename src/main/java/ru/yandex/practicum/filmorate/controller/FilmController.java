@@ -27,6 +27,13 @@ public class FilmController {
         return filmService.addFilm(film);
     }
 
+    @PostMapping("/sample")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Film addSampleFilm() {
+        log.info("Принят запрос на добавление нового SAMPLE фильма.");
+        return filmService.createSampleFilm();
+    }
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Film> getFilms() {
@@ -37,28 +44,35 @@ public class FilmController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Film getFilm(@PathVariable int id) {
-        log.info("Принят запрос на получение фильма по id: {}.", id);
+        log.info("Принят запрос на получение фильма по [id]: {}.", id);
         return filmService.getFilm(id);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public Film updateFilm(@RequestBody Film film) {
-        log.info("Принят запрос на обновление фильма id {}.", film.getId());
+        log.info("Принят запрос на обновление фильма [id] {}.", film.getId());
         return filmService.updateFilm(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void likeFilm(@PathVariable int id, @PathVariable int userId) {
-        log.info("Получен запрос на лайк фильма {} пользователем {}.", id, userId);
+        log.info("Получен запрос на лайк фильма [id] {} пользователем {}.", id, userId);
         filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void removeFilm(@PathVariable int id) {
+        log.info("Получен запрос на удаление фильма [id] {}.", id);
+        filmService.removeFilm(id);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void removeLikeFilm(@PathVariable int id, @PathVariable int userId) {
-        log.info("Получен запрос на удаление лайка фильма {} пользователем {}.", id, userId);
+        log.info("Получен запрос на удаление лайка фильма [id] {} пользователем {}.", id, userId);
         filmService.removeLike(id, userId);
     }
 

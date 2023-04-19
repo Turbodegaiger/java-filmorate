@@ -1,15 +1,14 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.inmem;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -57,6 +56,33 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.replace(film.getId(), film);
         log.info("Фильм {} обновлён.", film.getId());
         return film;
+    }
+
+    @Override
+    public void removeFilm(int filmId) {
+        if (!films.containsKey(filmId)) {
+            log.info("Фильм {} НЕ найден.", filmId);
+            throw new NotFoundException("Фильм " + filmId + " НЕ найден.");
+        }
+    }
+
+    @Override
+    public Set<Integer> getFilmLikes(int filmId) {
+        Set<Integer> users = getFilm(filmId).getUsersLiked();
+        log.info("Из базы данных выгружены лайки фильму id {}, всего {} лайков.", filmId, users.size());
+        return users;
+    }
+
+    @Override
+    public void addLike(int filmId, int userId) {
+        getFilm(filmId).getUsersLiked().add(userId);
+        log.info("Добавлен лайк фильму id {} от пользователя id {}", filmId, userId);
+    }
+
+    @Override
+    public void removeLike(int filmId, int userId) {
+        getFilm(filmId).getUsersLiked().remove(userId);
+        log.info("Удалён лайк фильму id {} от пользователя id {}", filmId, userId);
     }
 
     private int idGenerator() {

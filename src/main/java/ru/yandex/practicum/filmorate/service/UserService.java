@@ -2,11 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +21,7 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -42,7 +43,8 @@ public class UserService {
 
     public void addFriend(int userId, int friend) {
         if (userId <= 0 || friend <= 0) {
-            throw new NotFoundException(String.format("Невозможно добавить в друзья пользователей %s и %s, некорректный id.", friend, userId));
+            throw new NotFoundException(
+                    String.format("Невозможно добавить в друзья пользователей %s и %s, некорректный id.", friend, userId));
         }
         if (!userStorage.getUser(userId).getFriends().add(friend) ||
             !userStorage.getUser(friend).getFriends().add(userId)) {

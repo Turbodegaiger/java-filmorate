@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Slf4j
 public class Validator {
-    private static final Date EARLIEST_RELEASE = DateUtility.formatter("1895-11-28");
+    private static final Date EARLIEST_RELEASE = DateUtility.formatToDate("1895-11-28");
 
     public static boolean validate(Film film) throws ValidationException {
         try {

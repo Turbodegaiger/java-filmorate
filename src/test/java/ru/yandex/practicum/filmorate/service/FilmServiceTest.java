@@ -3,14 +3,15 @@ package ru.yandex.practicum.filmorate.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.date.DateUtility;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,15 +22,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmServiceTest {
     UserService userService;
-    FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+    JdbcTemplate jdbcTemplate = new JdbcTemplate();
+    FilmService filmService;
     List<Film> films = new ArrayList<>();
     List<User> users = new ArrayList<>();
 
     @BeforeEach
     void setParameters() {
-        UserStorage storage = new InMemoryUserStorage();
+        UserStorage storage = new UserDbStorage(jdbcTemplate);
         userService = new UserService(storage);
-        filmService = new FilmService(new InMemoryFilmStorage(), storage);
+        filmService = new FilmService(
+                new FilmDbStorage(jdbcTemplate),
+                new UserDbStorage(jdbcTemplate),
+                jdbcTemplate);
         films = new ArrayList<>();
         users = new ArrayList<>();
     }
@@ -37,13 +42,15 @@ public class FilmServiceTest {
     @BeforeEach
     void loadFilms() {
         Film film1 = new Film();
-        film1.setName("buba");
-        film1.setReleaseDate(DateUtility.formatter("1991-11-12"));
-        film1.setDescription("111");
+        film1.setName("Evil buba in da forest");
+        film1.setReleaseDate(DateUtility.formatToDate("1999-11-12"));
+        film1.setDescription("Evil buba is behind you. Always.");
         film1.setDuration(90L);
+        film1.setGenre("Триллер");
+        film1.setRating("R");
         Film film2 = new Film();
         film2.setName("aboba");
-        film2.setReleaseDate(DateUtility.formatter("1999-12-11"));
+        film2.setReleaseDate(DateUtility.formatToDate("1999-12-11"));
         film2.setDuration(60L);
         film2.setDescription("222");
         films.add(film1);
@@ -95,7 +102,7 @@ public class FilmServiceTest {
         Film updated = new Film();
         updated.setId(1);
         updated.setName("eqeqe");
-        updated.setReleaseDate(DateUtility.formatter("1992-11-12"));
+        updated.setReleaseDate(DateUtility.formatToDate("1992-11-12"));
         updated.setDescription("19");
         updated.setDuration(91L);
         Assertions.assertEquals(filmService.updateFilm(updated), filmService.getFilm(1));
@@ -107,7 +114,7 @@ public class FilmServiceTest {
         Film updated = new Film();
         updated.setId(2);
         updated.setName("eqeqe");
-        updated.setReleaseDate(DateUtility.formatter("1992-11-12"));
+        updated.setReleaseDate(DateUtility.formatToDate("1992-11-12"));
         updated.setDescription("19");
         updated.setDuration(91L);
         final NotFoundException exception = assertThrows(
@@ -199,7 +206,7 @@ public class FilmServiceTest {
         loadUsers();
         Film film3 = new Film();
         film3.setName("aboba111");
-        film3.setReleaseDate(DateUtility.formatter("2000-11-12"));
+        film3.setReleaseDate(DateUtility.formatToDate("2000-11-12"));
         film3.setDuration(65L);
         film3.setDescription("333");
         List<Film> sorted = new ArrayList<>();
@@ -220,12 +227,12 @@ public class FilmServiceTest {
     private void loadUsers() {
         User user1 = new User();
         user1.setEmail("aaaa@ya.ru");
-        user1.setBirthday(DateUtility.formatter("2000-11-11"));
+        user1.setBirthday(DateUtility.formatToDate("2000-11-11"));
         user1.setLogin("aaaa");
         User user2 = new User();
         user2.setEmail("bbbb@ya.ru");
         user2.setLogin("bbbb");
-        user2.setBirthday(DateUtility.formatter("2000-11-11"));
+        user2.setBirthday(DateUtility.formatToDate("2000-11-11"));
         users.add(user1);
         users.add(user2);
     }

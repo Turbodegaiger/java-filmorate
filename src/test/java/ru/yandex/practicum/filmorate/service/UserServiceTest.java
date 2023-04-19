@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.date.DateUtility;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.inmem.InMemoryUserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +74,7 @@ public class UserServiceTest {
         updated.setId(1);
         updated.setLogin("eqeqe");
         updated.setEmail("bugi-wugi@ya.ru");
-        updated.setBirthday(DateUtility.formatter("2000-11-11"));
+        updated.setBirthday(DateUtility.formatToDate("2000-11-11"));
         Assertions.assertEquals(userService.updateUser(updated), userService.getUser(1));
     }
 
@@ -85,7 +85,7 @@ public class UserServiceTest {
         updated.setId(4);
         updated.setLogin("eqeqe");
         updated.setEmail("bugi-wugi@ya.ru");
-        updated.setBirthday(DateUtility.formatter("2000-11-11"));
+        updated.setBirthday(DateUtility.formatToDate("2000-11-11"));
         final NotFoundException exception = assertThrows(
                 NotFoundException.class,
                 () -> userService.updateUser(updated)
@@ -143,7 +143,7 @@ public class UserServiceTest {
         User user3 = new User();
         user3.setEmail("eeee@ya.ru");
         user3.setLogin("eeee");
-        user3.setBirthday(DateUtility.formatter("2000-11-10"));
+        user3.setBirthday(DateUtility.formatToDate("2000-11-10"));
         userService.addUser(users.get(0));
         userService.addUser(users.get(1));
         userService.addUser(user3);
@@ -168,7 +168,7 @@ public class UserServiceTest {
         User user3 = new User();
         user3.setEmail("eeee@ya.ru");
         user3.setLogin("eeee");
-        user3.setBirthday(DateUtility.formatter("2000-11-10"));
+        user3.setBirthday(DateUtility.formatToDate("2000-11-10"));
         userService.addUser(users.get(0));
         userService.addUser(users.get(1));
         userService.addUser(user3);
@@ -184,7 +184,7 @@ public class UserServiceTest {
         User user3 = new User();
         user3.setEmail("eeee@ya.ru");
         user3.setLogin("eeee");
-        user3.setBirthday(DateUtility.formatter("2000-11-10"));
+        user3.setBirthday(DateUtility.formatToDate("2000-11-10"));
         userService.addUser(users.get(0));
         userService.addUser(users.get(1));
         userService.addUser(user3);
@@ -204,7 +204,7 @@ public class UserServiceTest {
         User user3 = new User();
         user3.setEmail("eeee@ya.ru");
         user3.setLogin("eeee");
-        user3.setBirthday(DateUtility.formatter("2000-11-10"));
+        user3.setBirthday(DateUtility.formatToDate("2000-11-10"));
         userService.addUser(users.get(0));
         userService.addUser(users.get(1));
         userService.addUser(user3);
@@ -218,7 +218,7 @@ public class UserServiceTest {
         User user3 = new User();
         user3.setEmail("eeee@ya.ru");
         user3.setLogin("eeee");
-        user3.setBirthday(DateUtility.formatter("2000-11-10"));
+        user3.setBirthday(DateUtility.formatToDate("2000-11-10"));
         userService.addUser(users.get(0));
         userService.addUser(users.get(1));
         userService.addUser(user3);
@@ -235,12 +235,12 @@ public class UserServiceTest {
     void loadUsers() {
         User user1 = new User();
         user1.setEmail("aaaa@ya.ru");
-        user1.setBirthday(DateUtility.formatter("2000-11-11"));
+        user1.setBirthday(DateUtility.formatToDate("2000-11-11"));
         user1.setLogin("aaaa");
         User user2 = new User();
         user2.setEmail("bbbb@ya.ru");
         user2.setLogin("bbbb");
-        user2.setBirthday(DateUtility.formatter("2000-11-11"));
+        user2.setBirthday(DateUtility.formatToDate("2000-11-11"));
         users.add(user1);
         users.add(user2);
     }

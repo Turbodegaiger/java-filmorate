@@ -27,8 +27,28 @@ public class Film {
     private Date releaseDate;
     @Min(1)
     private Long duration;
+    private String genre;
+    private String rating;
     @JsonIgnore
     private Set<Integer> usersLiked = new HashSet<>();
+    public Film(String name, String description, Date releaseDate, Long duration, String genre, String rating) {
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.genre = genre;
+        this.rating = rating;
+    }
+
+    public Film(Integer id, String name, String description, Date releaseDate, Long duration, String genre, String rating) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.genre = genre;
+        this.rating = rating;
+    }
 
     public Integer getLikesCount() {
         return usersLiked.size();
