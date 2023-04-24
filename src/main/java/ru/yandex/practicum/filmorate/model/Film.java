@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.swing.tree.RowMapper;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -23,44 +24,35 @@ public class Film {
     @Size(min = 1, max = 200)
     private String description;
     @NotNull
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Europe/Moscow")
     private Date releaseDate;
     @Min(1)
     private Long duration;
-    private String genre;
-    private String rating;
+    private Set<Genre> genre;
+    private Set<Mpa> mpa;
     @JsonIgnore
     private Set<Integer> usersLiked = new HashSet<>();
-    public Film(String name, String description, Date releaseDate, Long duration, String genre, String rating) {
+    public Film(String name, String description, Date releaseDate, Long duration, Set<Genre> genre, Set<Mpa> mpa) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.genre = genre;
-        this.rating = rating;
+        this.mpa = mpa;
     }
 
-    public Film(Integer id, String name, String description, Date releaseDate, Long duration, String genre, String rating) {
+    public Film(Integer id, String name, String description, Date releaseDate, Long duration, Set<Genre> genre, Set<Mpa> mpa) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.genre = genre;
-        this.rating = rating;
+        this.mpa= mpa;
     }
 
     public Integer getLikesCount() {
         return usersLiked.size();
-    }
-
-    @Override
-    public String toString() {
-        return "Film{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", releaseDate=" + releaseDate +
-                '}';
     }
 
     @Override
@@ -74,5 +66,17 @@ public class Film {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getReleaseDate(), getDuration());
+    }
+
+    @Override
+    public String toString() {
+        return "Film{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", releaseDate=" + releaseDate +
+                ", duration=" + duration +
+                ", genre='" + genre + '\'' +
+                ", mpa='" + mpa + '\'' +
+                '}';
     }
 }

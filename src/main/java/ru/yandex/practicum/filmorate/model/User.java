@@ -21,7 +21,8 @@ public class User {
     private String email;
     @NotBlank
     private String login;
-    @JsonFormat(pattern = "yyyy-MM-dd")
+
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Europe/Moscow")
     private Date birthday;
     @JsonIgnore
     private Set<Integer> friends = new HashSet<>();

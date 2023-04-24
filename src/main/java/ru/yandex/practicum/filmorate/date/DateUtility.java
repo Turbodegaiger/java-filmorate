@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.date;
 
+import ru.yandex.practicum.filmorate.exception.ValidationException;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -11,7 +13,7 @@ public class DateUtility {
         try {
             return formatTo.parse(date);
         } catch (ParseException e) {
-            throw new RuntimeException(e);
+            throw new ValidationException("Некорректный формат даты. Ожидается строка формата yyyy-MM-dd.");
         }
     }
 
