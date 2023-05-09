@@ -175,8 +175,8 @@ public class UserServiceTest {
         userService.addFriend(1,2);
         userService.addFriend(1,3);
         userService.addFriend(3,2);
-        Assertions.assertEquals(userService.getMutualFriendsList(1,3), List.of(users.get(1)));
-        Assertions.assertEquals(userService.getMutualFriendsList(1,3), List.of(users.get(1)));
+        Assertions.assertEquals(userService.getCommonFriendsList(1,3), List.of(users.get(1)));
+        Assertions.assertEquals(userService.getCommonFriendsList(1,3), List.of(users.get(1)));
     }
 
     @Test
@@ -193,7 +193,7 @@ public class UserServiceTest {
         userService.addFriend(3,2);
         final NotFoundException exception = assertThrows(
                 NotFoundException.class,
-                () -> userService.getMutualFriendsList(4,1)
+                () -> userService.getCommonFriendsList(4,1)
         );
         assertEquals("Пользователь 4 НЕ найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");

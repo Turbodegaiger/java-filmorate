@@ -40,6 +40,10 @@ public class UserService {
         return userStorage.updateUser(user);
     }
 
+    public void removeUser(int userId) {
+        userStorage.removeUser(userId);
+    }
+
     public void addFriend(int userId, int friendId) {
         if (userId <= 0 || friendId <= 0) {
             throw new NotFoundException(
@@ -53,14 +57,18 @@ public class UserService {
         log.info("Пользователи {} и {} больше не друзья.", friendId, userId);
     }
 
-    public List<User> getMutualFriendsList(int userId, int friend) {
+    public List<User> getCommonFriendsList(int userId, int friend) {
         Set<Integer> friends1 = userStorage.getUserFriends(userId);
-        Set<Integer> friends2 = userStorage.getUserFriends(userId);
+        Set<Integer> friends2 = userStorage.getUserFriends(friend);
         List<User> friendList = new ArrayList<>();
-        if (!friends1.isEmpty() || friends2.isEmpty()) {
+        if (!friends1.isEmpty() && !friends2.isEmpty()) {
             Set<Integer> mutualFriends = friends1.stream()
                     .filter(friends2::contains)
                     .collect(Collectors.toSet());
+            if (mutualFriends.isEmpty()) {
+                log.info("У пользователей {} и {} нет общих друзей.", userId, friend);
+                return friendList;
+            }
             friendList = getUserListByIds(mutualFriends);
             log.info("Список общих друзей пользователей {} и {}: {}", userId, friend, friendList);
         } else {

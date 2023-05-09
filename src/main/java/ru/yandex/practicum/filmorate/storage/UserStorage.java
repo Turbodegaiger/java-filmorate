@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.data.relational.core.sql.In;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;

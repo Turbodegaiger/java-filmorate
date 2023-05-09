@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.date.DateUtility;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -50,12 +52,14 @@ public class FilmService {
         return filmStorage.updateFilm(film);
     }
 
-    public void removeFilm(int filmId) {filmStorage.removeFilm(filmId);}
+    public void removeFilm(int filmId) {
+        filmStorage.removeFilm(filmId);
+    }
 
     public List<User> getFilmLikes(int filmId) {
         List<User> users = new ArrayList<>();
         Set<Integer> usersId = filmStorage.getFilmLikes(filmId);
-        for(Integer id : usersId) {
+        for (Integer id : usersId) {
             users.add(userStorage.getUser(id).orElse(new User()));
         }
         return users;
@@ -98,8 +102,8 @@ public class FilmService {
         film1.setReleaseDate(DateUtility.formatToDate("1999-11-12"));
         film1.setDescription("Evil buba is behind you. Always.");
         film1.setDuration(90L);
-//        film1.setGenre("Триллер");
-//        film1.setMpa("R");
+        film1.setGenres(List.of(new Genre(1, "Комедия"), new Genre(2, "Драма")));
+        film1.setMpa(new Mpa(4));
         addFilm(film1);
         log.info("Создан фильм-образец.");
         return film1;

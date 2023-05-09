@@ -5,15 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.swing.tree.RowMapper;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -28,29 +24,47 @@ public class Film {
     private Date releaseDate;
     @Min(1)
     private Long duration;
-    private Set<Genre> genre;
-    private Set<Mpa> mpa;
+    private List<Genre> genres;
+    private Mpa mpa;
     @JsonIgnore
     private Set<Integer> usersLiked = new HashSet<>();
-    public Film(String name, String description, Date releaseDate, Long duration, Set<Genre> genre, Set<Mpa> mpa) {
+
+    public Film(String name, String description, Date releaseDate, Long duration, List<Genre> genres, Mpa mpa) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.genre = genre;
+        this.genres = genres;
         this.mpa = mpa;
     }
 
-    public Film(Integer id, String name, String description, Date releaseDate, Long duration, Set<Genre> genre, Set<Mpa> mpa) {
+    public Film(String name, String description, Date releaseDate, Long duration, Mpa mpa) {
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+    }
+
+    public Film(String name, String description, Date releaseDate, Long duration, List<Genre> genres) {
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.genres = genres;
+    }
+
+    public Film(Integer id, String name, String description, Date releaseDate, Long duration, List<Genre> genres, Mpa mpa) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.genre = genre;
-        this.mpa= mpa;
+        this.genres = genres;
+        this.mpa = mpa;
     }
 
+    @JsonIgnore
     public Integer getLikesCount() {
         return usersLiked.size();
     }
@@ -75,7 +89,7 @@ public class Film {
                 ", name='" + name + '\'' +
                 ", releaseDate=" + releaseDate +
                 ", duration=" + duration +
-                ", genre='" + genre + '\'' +
+                ", genres='" + genres + '\'' +
                 ", mpa='" + mpa + '\'' +
                 '}';
     }

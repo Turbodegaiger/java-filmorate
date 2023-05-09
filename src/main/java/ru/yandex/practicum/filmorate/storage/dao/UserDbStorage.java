@@ -6,12 +6,11 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.Mapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 @Component("userDbStorage")
@@ -53,7 +52,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> getUsers() {
         String sql = "SELECT * FROM users ORDER BY name ASC";
-        List<User> userList = jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
+        List<User> userList = jdbcTemplate.query(sql, (rs, rowNum) -> Mapper.user.mapRow(rs, rowNum));
         log.info("Из базы данных выгружен список всех пользователей размером {} записей.", userList.size());
         return userList;
     }
@@ -76,7 +75,7 @@ public class UserDbStorage implements UserStorage {
     public Optional<User> getUser(int userId) {
         if (checkUserExistence(userId)) {
             String sql = "SELECT * FROM users WHERE user_id=?";
-            List<User> user = jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId);
+            List<User> user = jdbcTemplate.query(sql, (rs, rowNum) -> Mapper.user.mapRow(rs, rowNum), userId);
             log.info("Из базы данных выгружен пользователь {} [id {}].", user.get(0).getName(), user.get(0).getId());
             return Optional.of(user.get(0));
         } else {
@@ -101,6 +100,10 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(int userId, int friendId) {
+        if (userId == friendId) {
+            log.info("Пользователь не может добавлять самого себя в друзья.");
+            throw new AlreadyExistsException("Пользователь не может добавлять самого себя в друзья.");
+        }
         if (checkUserExistence(userId) && checkUserExistence(friendId)) {
             Set<Integer> friends = getUserFriends(userId);
             if (!friends.contains(friendId)) {
@@ -144,6 +147,10 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void removeFriend(int userId, int friendId) {
+        if (userId == friendId) {
+            log.info("Пользователь не может удалять самого себя из друзей.");
+            throw new AlreadyExistsException("Пользователь не может удалять самого себя из друзей.");
+        }
         if (checkUserExistence(userId)) {
             Set<Integer> friends = getUserFriends(userId);
             if (friends.contains(friendId)) {
@@ -156,15 +163,6 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException(
                     String.format("Ошибка при удалении из друзей. Пользователя с [id %s] не существует.", userId));
         }
-    }
-
-    private User makeUser(ResultSet rs) throws SQLException {
-        return new User(
-                rs.getInt("user_id"),
-                rs.getString("name"),
-                rs.getString("email"),
-                rs.getString("login"),
-                rs.getDate("birthday"));
     }
 
     private boolean checkUserExistence(int userId) {

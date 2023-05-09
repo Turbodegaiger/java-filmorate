@@ -32,7 +32,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public List<User> getUsers() {
         List<User> usersList = new ArrayList<>();
-        for(Integer id : users.keySet()) {
+        for (Integer id : users.keySet()) {
             usersList.add(getUser(id).orElse(new User()));
         }
         log.info("Из базы данных выгружен список всех пользователей в количестве {} записей.", usersList.size());
