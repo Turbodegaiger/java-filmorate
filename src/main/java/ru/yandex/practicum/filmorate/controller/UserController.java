@@ -37,49 +37,49 @@ public class UserController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public User getUser(@PathVariable int id) {
-        log.info("Принят запрос на получение пользователя по id: {}.", id);
+        log.info("Принят запрос на получение пользователя [id {}].", id);
         return userService.getUser(id);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public User updateUser(@RequestBody User user) {
-        log.info("Принят запрос на обновление пользователя {}.", user.getId());
+        log.info("Принят запрос на обновление пользователя [id {}].", user.getId());
         return userService.updateUser(user);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void removeUser(@PathVariable int id) {
-        log.info("Принят запрос на удаление пользователя {}.", id);
+        log.info("Принят запрос на удаление пользователя [id {}].", id);
         userService.removeUser(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void addToFriends(@PathVariable int id, @PathVariable int friendId) {
-        log.info("Получен запрос на добавление пользователей {} и {} в друзья друг к другу.", id, friendId);
+        log.info("Получен запрос на добавление пользователя [id {}] в друзья к пользователю [id {}] .", friendId, id);
         userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public void removeFriend(@PathVariable int id, @PathVariable int friendId) {
-        log.info("Получен запрос на удаление пользователей {} и {} из списка друзей друг друга.", id, friendId);
+        log.info("Получен запрос на удаление пользователя [id {}] из списка друзей пользователя [id {}].", friendId, id);
         userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getFriendList(@PathVariable int id) {
-        log.info("Получен запрос на получение списка друзей у пользователя {}.", id);
+        log.info("Получен запрос на получение списка друзей у пользователя [id {}].", id);
         return userService.getFriendList(id);
     }
 
     @GetMapping("{id}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getCommonFriendsList(@PathVariable int id, @PathVariable int otherId) {
-        log.info("Получен запрос на получение списка общих друзей у пользователей {} и {}.", id, otherId);
+        log.info("Получен запрос на получение списка общих друзей у пользователей [id {}] и [id {}].", id, otherId);
         return userService.getCommonFriendsList(id, otherId);
     }
 }

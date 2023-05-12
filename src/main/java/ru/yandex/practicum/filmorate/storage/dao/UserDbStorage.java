@@ -110,9 +110,14 @@ public class UserDbStorage implements UserStorage {
                 Set<Integer> friendsOfFriend = getUserFriends(friendId);
                 if (friendsOfFriend.contains(userId)) {
                     jdbcTemplate.update("INSERT INTO friends_confirmed (user_id, friend_id) VALUES (?,?);", userId, friendId);
+                    jdbcTemplate.update("DELETE FROM friends_not_confirmed WHERE user_id = ? AND friend_id = ?;", userId, friendId);
+                    jdbcTemplate.update("DELETE FROM friends_not_confirmed WHERE user_id = ? AND friend_id = ?;", friendId, userId);
+                    log.info("Пользователь [id {}] добавил в друзья пользователя [id {}]. Теперь они друзья друг друга.", userId, friendId);
                 }
-                jdbcTemplate.update("INSERT INTO friends_not_confirmed (user_id, friend_id) VALUES (?,?);", userId, friendId);
-                log.info("Пользователь [id {}] добавил в друзья пользователя [id {}]", userId, friendId);
+                else {
+                    jdbcTemplate.update("INSERT INTO friends_not_confirmed (user_id, friend_id) VALUES (?,?);", userId, friendId);
+                    log.info("Пользователь [id {}] добавил в друзья пользователя [id {}]", userId, friendId);
+                }
             } else {
                 log.info("Пользователь [id {}] уже имеет в друзьях пользователя [id {}]", userId, friendId);
                 throw new AlreadyExistsException(String.format(
@@ -128,8 +133,12 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Set<Integer> getUserFriends(int userId) {
         if (checkUserExistence(userId)) {
-            String sql = "SELECT friend_id FROM friends_not_confirmed WHERE user_id = ?;";
-            SqlRowSet idRows = jdbcTemplate.queryForRowSet(sql, userId);
+            String sql = "SELECT friend_id FROM friends_not_confirmed WHERE user_id = ? " +
+                    "UNION " +
+                    "SELECT friend_id FROM friends_confirmed WHERE user_id = ? " +
+                    "UNION " +
+                    "SELECT user_id FROM friends_confirmed WHERE friend_id = ?;";
+            SqlRowSet idRows = jdbcTemplate.queryForRowSet(sql, userId, userId, userId);
             Set<Integer> friends = new HashSet<>();
             while (idRows.next()) {
                 friends.add(idRows.getInt("friend_id"));
@@ -153,10 +162,20 @@ public class UserDbStorage implements UserStorage {
         }
         if (checkUserExistence(userId)) {
             Set<Integer> friends = getUserFriends(userId);
+            Set<Integer> friendsOfFriend = getUserFriends(friendId);
             if (friends.contains(friendId)) {
-                jdbcTemplate.update("DELETE FROM friends_not_confirmed WHERE user_id=? AND friend_id=?;", userId, friendId);
-                jdbcTemplate.update("DELETE FROM friends_confirmed WHERE user_id=? AND friend_id=?;", userId, friendId);
+                if (friendsOfFriend.contains(userId)) {
+                    jdbcTemplate.update("DELETE FROM friends_confirmed " +
+                            "WHERE user_id=? AND friend_id=? OR user_id=? AND friend_id=?;", userId, friendId, friendId, userId);
+                    jdbcTemplate.update("INSERT INTO friends_not_confirmed (user_id, friend_id) VALUES (?,?)", friendId, userId);
+                } else {
+                    jdbcTemplate.update("DELETE FROM friends_not_confirmed WHERE user_id = ?", userId);
+                }
                 log.info("Пользователь [id {}] удалил из списка друзей пользователя [id {}]", userId, friendId);
+            } else {
+                log.info("Ошибка при удалении из друзей. Пользователь [id {}] не имеет в друзьях [id {}].", userId, friendId);
+                throw new NotFoundException(
+                        String.format("Ошибка при удалении из друзей. Пользователь [id %s] не имеет в друзьях [id %s].", userId, friendId));
             }
         } else {
             log.info("Ошибка при удалении из друзей. Пользователя с [id {}] не существует.", userId);

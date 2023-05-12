@@ -44,14 +44,14 @@ public class FilmController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Film getFilm(@PathVariable int id) {
-        log.info("Принят запрос на получение фильма по [id]: {}.", id);
+        log.info("Принят запрос на получение фильма по [id {}].", id);
         return filmService.getFilm(id);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public Film updateFilm(@RequestBody Film film) {
-        log.info("Принят запрос на обновление фильма [id] {}.", film.getId());
+        log.info("Принят запрос на обновление фильма [id {}].", film.getId());
         return filmService.updateFilm(film);
     }
 
@@ -65,14 +65,14 @@ public class FilmController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void removeFilm(@PathVariable int id) {
-        log.info("Получен запрос на удаление фильма [id] {}.", id);
+        log.info("Получен запрос на удаление фильма [id {}].", id);
         filmService.removeFilm(id);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void removeLikeFilm(@PathVariable int id, @PathVariable int userId) {
-        log.info("Получен запрос на удаление лайка фильма [id] {} пользователем {}.", id, userId);
+        log.info("Получен запрос на удаление лайка фильма [id {}] пользователем [id {}].", id, userId);
         filmService.removeLike(id, userId);
     }
 
