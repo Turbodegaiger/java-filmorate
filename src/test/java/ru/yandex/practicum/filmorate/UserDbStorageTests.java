@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -25,11 +25,13 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserDbStorageTests {
 	private final UserDbStorage userStorage;
-	private final static List<User> testUsers = new ArrayList<>();
-	private final static List<User> testUpdateUsers = new ArrayList<>();
+	private List<User> testUsers;
+	private List<User> testUpdateUsers;
 
-	@BeforeAll
-	public static void loadUsers() {
+	@BeforeEach
+	public void loadUsers() {
+		testUsers = new ArrayList<>();
+		testUpdateUsers = new ArrayList<>();
 		User user1 = new User();
 		user1.setEmail("aaaa@ya.ru");
 		user1.setBirthday(DateUtility.formatToDate("2000-11-11"));

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -27,12 +27,15 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class FilmDbStorageTests {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
-    private final static List<Film> testFilms = new ArrayList<>();
-    private final static List<User> testUsers = new ArrayList<>();
-    private final static List<Film> testUpdateFilms = new ArrayList<>();
+    private List<Film> testFilms;
+    private List<User> testUsers;
+    private List<Film> testUpdateFilms;
 
-    @BeforeAll
-    public static void loadFilms() {
+    @BeforeEach
+    public void loadFilms() {
+        testFilms = new ArrayList<>();
+        testUsers = new ArrayList<>();
+        testUpdateFilms = new ArrayList<>();
         Film film1 = new Film();
         film1.setName("aaa");
         film1.setDescription("aaa1");
@@ -170,46 +173,4 @@ public class FilmDbStorageTests {
         testUsers.add(user1);
         testUsers.add(user2);
     }
-
-//    @Test
-//    public void testAddFriendAndGetFilmFriends() {
-//        filmStorage.addFriend(1,2);
-//        assertThat(filmStorage.getFilmFriends(1)).isEqualTo(Set.of(2));
-//    }
-//
-//    @Test
-//    public void testWrongAddFriend() {
-//        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.addFriend(1,3));
-//        assertThatExceptionOfType(AlreadyExistsException.class).isThrownBy(() -> filmStorage.addFriend(1,1));
-//        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.addFriend(1,0));
-//    }
-//
-//    @Test
-//    public void testRemoveFriend() {
-//        assertThat(filmStorage.getFilmFriends(2)).isEqualTo(Set.of());
-//        filmStorage.addFriend(2,1);
-//        assertThat(filmStorage.getFilmFriends(2)).isEqualTo(Set.of(1));
-//        filmStorage.removeFriend(2,1);
-//        assertThat(filmStorage.getFilmFriends(2)).isEqualTo(Set.of());
-//    }
-//
-//    @Test
-//    public void testWrongRemoveFriend() {
-//        filmStorage.addFriend(2,1);
-//        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.removeFriend(2,0));
-//        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.removeFriend(2,3));
-//        assertThatExceptionOfType(AlreadyExistsException.class).isThrownBy(() -> filmStorage.removeFriend(2,2));
-//        filmStorage.removeFriend(2,1);
-//        assertThat(filmStorage.getFilmFriends(2)).isEqualTo(Set.of());
-//    }
-//
-//    @Test
-//    public void testFindFilmById() {
-//        Film filmOptional = filmStorage.getFilm(1);
-//        assertThat(userOptional)
-//                .isPresent()
-//                .hasValueSatisfying(user ->
-//                        assertThat(user).hasFieldOrPropertyWithValue("id", 1)
-//                );
-//    }
 }

@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.date.DateUtility;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -145,7 +144,6 @@ public class FilmServiceTest {
         assertEquals("Пользователь [id 1] НЕ найден.", exception1.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
         userService.addUser(users.get(0));
-        User user = userService.getUser(1);
         final NotFoundException exception2 = assertThrows(
                 NotFoundException.class,
                 () -> filmService.addLike(2,1)
