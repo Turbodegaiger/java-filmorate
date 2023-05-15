@@ -22,7 +22,7 @@ public class User {
     @NotBlank
     private String login;
 
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Europe/Moscow")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Europe/Moscow")
     private Date birthday;
     @JsonIgnore
     private Set<Integer> friends = new HashSet<>();
