@@ -163,12 +163,12 @@ public class FilmDbStorageTests {
 
     private void loadUsers() {
         User user1 = new User();
-        user1.setEmail("aaaa@ya.ru");
+        user1.setEmail("aaaawww@ya.ru");
         user1.setBirthday(DateUtility.formatToDate("2000-11-11"));
-        user1.setLogin("aaaa");
+        user1.setLogin("aaaawww");
         User user2 = new User();
-        user2.setEmail("bbbb@ya.ru");
-        user2.setLogin("bbbb");
+        user2.setEmail("bbbbwww@ya.ru");
+        user2.setLogin("bbbbwwww");
         user2.setBirthday(DateUtility.formatToDate("2000-11-11"));
         testUsers.add(user1);
         testUsers.add(user2);
