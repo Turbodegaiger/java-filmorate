@@ -39,7 +39,7 @@ public class UserServiceTest {
                 AlreadyExistsException.class,
                 () -> userService.addUser(users.get(0))
         );
-        assertEquals("Пользователь aaaa@ya.ru уже существует.", exception.getMessage(),
+        assertEquals("Пользователь c email aaaa@ya.ru уже существует.", exception.getMessage(),
                 "Не возникает исключение при попытке добавления уже существующего пользователя");
     }
 
@@ -63,7 +63,7 @@ public class UserServiceTest {
                 NotFoundException.class,
                 () -> userService.getUser(2)
         );
-        assertEquals("Пользователь 2 НЕ найден.", exception.getMessage(),
+        assertEquals("Пользователь [id 2] НЕ найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
     }
 
@@ -90,7 +90,7 @@ public class UserServiceTest {
                 NotFoundException.class,
                 () -> userService.updateUser(updated)
         );
-        assertEquals("Пользователь 4 НЕ найден.", exception.getMessage(),
+        assertEquals("Пользователь [id 4] НЕ найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
     }
 
@@ -100,7 +100,7 @@ public class UserServiceTest {
         userService.addUser(users.get(1));
         userService.addFriend(1, 2);
         Assertions.assertEquals(userService.getUser(1).getFriends(), Set.of(users.get(1).getId()));
-        Assertions.assertEquals(userService.getUser(2).getFriends(), Set.of(users.get(0).getId()));
+        Assertions.assertEquals(userService.getUser(2).getFriends(), Set.of());
     }
 
     @Test
@@ -111,7 +111,7 @@ public class UserServiceTest {
                 NotFoundException.class,
                 () -> userService.addFriend(4, 1)
         );
-        assertEquals("Пользователь 4 НЕ найден.", exception.getMessage(),
+        assertEquals("Пользователь [id 4] НЕ найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
     }
 
@@ -124,7 +124,7 @@ public class UserServiceTest {
                 AlreadyExistsException.class,
                 () -> userService.addFriend(1, 2)
         );
-        assertEquals("Пользователи 1 и 2 уже друзья.", exception.getMessage(),
+        assertEquals("Пользователи [id 1] и [id 2] уже друзья.", exception.getMessage(),
                 "Не возникает исключение при попытке повторного добавления в друзья");
     }
 
@@ -152,13 +152,13 @@ public class UserServiceTest {
                 NotFoundException.class,
                 () -> userService.removeFriend(4, 1)
         );
-        assertEquals("Пользователь 4 НЕ найден.", exception1.getMessage(),
+        assertEquals("Пользователь [id 4] НЕ найден.", exception1.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
         final NotFoundException exception2 = assertThrows(
                 NotFoundException.class,
                 () -> userService.removeFriend(3, 1)
         );
-        assertEquals("Пользователи 3 и 1 не находятся в списках друзей друг у друга.", exception2.getMessage(),
+        assertEquals("Пользователи [id 3] и [id 1] не находятся в списках друзей друг у друга.", exception2.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
 
     }
@@ -195,7 +195,7 @@ public class UserServiceTest {
                 NotFoundException.class,
                 () -> userService.getCommonFriendsList(4,1)
         );
-        assertEquals("Пользователь 4 НЕ найден.", exception.getMessage(),
+        assertEquals("Пользователь [id 4] НЕ найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
     }
 
@@ -228,7 +228,7 @@ public class UserServiceTest {
                 NotFoundException.class,
                 () -> userService.getFriendList(4)
         );
-        assertEquals("Пользователь 4 НЕ найден.", exception.getMessage(),
+        assertEquals("Пользователь [id 4] НЕ найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
     }
 

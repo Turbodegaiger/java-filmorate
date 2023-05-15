@@ -11,9 +11,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.inmem.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.inmem.InMemoryUserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,19 +24,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmServiceTest {
     UserService userService;
-    JdbcTemplate jdbcTemplate = new JdbcTemplate();
     FilmService filmService;
     List<Film> films = new ArrayList<>();
     List<User> users = new ArrayList<>();
 
     @BeforeEach
     void setParameters() {
-        UserStorage storage = new UserDbStorage(jdbcTemplate);
+        UserStorage storage = new InMemoryUserStorage();
         userService = new UserService(storage);
         filmService = new FilmService(
-                new FilmDbStorage(jdbcTemplate),
-                new UserDbStorage(jdbcTemplate),
-                jdbcTemplate);
+                new InMemoryFilmStorage(),
+                storage);
         films = new ArrayList<>();
         users = new ArrayList<>();
     }
@@ -71,7 +69,7 @@ public class FilmServiceTest {
                 AlreadyExistsException.class,
                 () -> filmService.addFilm(films.get(0))
         );
-        assertEquals("Фильм buba уже существует.", exception.getMessage(),
+        assertEquals("Фильм Evil buba in da forest уже существует.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма");
     }
 
@@ -94,7 +92,7 @@ public class FilmServiceTest {
                 NotFoundException.class,
                 () -> filmService.getFilm(1)
         );
-        assertEquals("Фильм 1 НЕ найден.", exception.getMessage(),
+        assertEquals("Фильм [id 1] НЕ найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма");
     }
 
@@ -123,7 +121,7 @@ public class FilmServiceTest {
                 NotFoundException.class,
                 () -> filmService.updateFilm(updated)
         );
-        assertEquals("Фильм 2 НЕ найден.", exception.getMessage(),
+        assertEquals("Фильм [id 2] НЕ найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма");
     }
 
@@ -144,21 +142,22 @@ public class FilmServiceTest {
                 NotFoundException.class,
                 () -> filmService.addLike(1,1)
         );
-        assertEquals("Пользователь 1 НЕ найден.", exception1.getMessage(),
+        assertEquals("Пользователь [id 1] НЕ найден.", exception1.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
         userService.addUser(users.get(0));
+        User user = userService.getUser(1);
         final NotFoundException exception2 = assertThrows(
                 NotFoundException.class,
                 () -> filmService.addLike(2,1)
         );
-        assertEquals("Фильм 2 НЕ найден.", exception2.getMessage(),
+        assertEquals("Фильм [id 2] НЕ найден.", exception2.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
         filmService.addLike(1,1);
         final AlreadyExistsException exception3 = assertThrows(
                 AlreadyExistsException.class,
                 () -> filmService.addLike(1,1)
         );
-        assertEquals("Пользователь 1 уже ставил лайк фильму 1", exception3.getMessage(),
+        assertEquals("Пользователь [id 1] уже ставил лайк фильму [id 1]", exception3.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
     }
 
@@ -185,21 +184,21 @@ public class FilmServiceTest {
                 NotFoundException.class,
                 () -> filmService.removeLike(1,3)
         );
-        assertEquals("Пользователь 3 НЕ найден.", exception1.getMessage(),
+        assertEquals("Пользователь [id 3] НЕ найден.", exception1.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
 
         final NotFoundException exception2 = assertThrows(
                 NotFoundException.class,
                 () -> filmService.removeLike(2,1)
         );
-        assertEquals("Фильм 2 НЕ найден.", exception2.getMessage(),
+        assertEquals("Фильм [id 2] НЕ найден.", exception2.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
 
         final NotFoundException exception3 = assertThrows(
                 NotFoundException.class,
                 () -> filmService.removeLike(1,2)
         );
-        assertEquals("Пользователь 2 не ставил лайк фильму 1", exception3.getMessage(),
+        assertEquals("Пользователь [id 2] не ставил лайк фильму [id 1]", exception3.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
     }
 

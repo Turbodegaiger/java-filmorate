@@ -23,10 +23,42 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class FilmoRateApplicationTests {
+class UserDbStorageTests {
 	private final UserDbStorage userStorage;
 	private final static List<User> testUsers = new ArrayList<>();
 	private final static List<User> testUpdateUsers = new ArrayList<>();
+
+	@BeforeAll
+	public static void loadUsers() {
+		User user1 = new User();
+		user1.setEmail("aaaa@ya.ru");
+		user1.setBirthday(DateUtility.formatToDate("2000-11-11"));
+		user1.setLogin("aaaa");
+		User user2 = new User();
+		user2.setEmail("bbbb@ya.ru");
+		user2.setLogin("bbbb");
+		user2.setBirthday(DateUtility.formatToDate("2000-11-11"));
+		testUsers.add(user1);
+		testUsers.add(user2);
+		User user3 = new User();
+		user3.setId(1);
+		user3.setEmail("aaaaweeq@ya.ru");
+		user3.setBirthday(DateUtility.formatToDate("2000-11-10"));
+		user3.setLogin("aaaa");
+		User user4 = new User();
+		user4.setId(5);
+		user4.setEmail("bbbbeqe@ya.ru");
+		user4.setLogin("bbbba");
+		user4.setBirthday(DateUtility.formatToDate("2000-11-12"));
+		User user5 = new User();
+		user5.setId(3);
+		user5.setEmail("eeeee@ya.ru");
+		user5.setLogin("eeeeaq");
+		user5.setBirthday(DateUtility.formatToDate("2000-11-12"));
+		testUpdateUsers.add(user3);
+		testUpdateUsers.add(user4);
+		testUpdateUsers.add(user5);
+	}
 
 	@Test
 	public void testAddUserAndGetUser() {
@@ -67,8 +99,8 @@ class FilmoRateApplicationTests {
 
 	@Test
 	public void testRemoveUser() {
-		userStorage.addUser(testUpdateUsers.get(2));
-		assertThat(userStorage.getUser(3).get()).isEqualTo(testUpdateUsers.get(2));
+		User newUser = userStorage.addUser(testUpdateUsers.get(2));
+		assertThat(userStorage.getUser(newUser.getId()).get()).isEqualTo(testUpdateUsers.get(2));
 		userStorage.removeUser(3);
 		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> userStorage.getUser(3));
 	}
@@ -94,10 +126,15 @@ class FilmoRateApplicationTests {
 
 	@Test
 	public void testRemoveFriend() {
+		userStorage.addUser(new User(3, "qeq", "qqq@ya.ru", "login", DateUtility.formatToDate("2001-01-01")));
 		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of());
 		userStorage.addFriend(2,1);
 		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of(1));
+		userStorage.addFriend(2,3);
+		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of(1,3));
 		userStorage.removeFriend(2,1);
+		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of(3));
+		userStorage.removeFriend(2,3);
 		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of());
 	}
 
@@ -119,37 +156,5 @@ class FilmoRateApplicationTests {
 				.hasValueSatisfying(user ->
 						assertThat(user).hasFieldOrPropertyWithValue("id", 1)
 				);
-	}
-
-	@BeforeAll
-	private static void loadUsers() {
-		User user1 = new User();
-		user1.setEmail("aaaa@ya.ru");
-		user1.setBirthday(DateUtility.formatToDate("2000-11-11"));
-		user1.setLogin("aaaa");
-		User user2 = new User();
-		user2.setEmail("bbbb@ya.ru");
-		user2.setLogin("bbbb");
-		user2.setBirthday(DateUtility.formatToDate("2000-11-11"));
-		testUsers.add(user1);
-		testUsers.add(user2);
-		User user3 = new User();
-		user3.setId(1);
-		user3.setEmail("aaaaweeq@ya.ru");
-		user3.setBirthday(DateUtility.formatToDate("2000-11-10"));
-		user3.setLogin("aaaa");
-		User user4 = new User();
-		user4.setId(5);
-		user4.setEmail("bbbbeqe@ya.ru");
-		user4.setLogin("bbbba");
-		user4.setBirthday(DateUtility.formatToDate("2000-11-12"));
-		User user5 = new User();
-		user5.setId(3);
-		user5.setEmail("eeeee@ya.ru");
-		user5.setLogin("eeeeaq");
-		user5.setBirthday(DateUtility.formatToDate("2000-11-12"));
-		testUpdateUsers.add(user3);
-		testUpdateUsers.add(user4);
-		testUpdateUsers.add(user5);
 	}
 }

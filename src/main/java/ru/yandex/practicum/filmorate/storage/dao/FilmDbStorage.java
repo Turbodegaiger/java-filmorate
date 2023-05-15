@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.mapper.Mapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.validator.Checker;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getFilms() {
         List<Film> filmList = new ArrayList<>();
         String sql = "SELECT film_id FROM films;";
-        SqlRowSet filmIdRows = jdbcTemplate.queryForRowSet("SELECT film_id FROM films;");
+        SqlRowSet filmIdRows = jdbcTemplate.queryForRowSet(sql);
         while (filmIdRows.next()) {
             filmList.add(getFilm(filmIdRows.getInt("film_id")));
         }
@@ -83,7 +84,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        checkFilmExistence(film.getId());
+        Checker.checkFilmExistence(film.getId(), jdbcTemplate);
         Validator.validate(film);
         String sql = "UPDATE films " +
                 "SET name = ?, description = ?, release_date = ?, duration = ? " +
@@ -114,7 +115,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilm(int filmId) {
-        checkFilmExistence(filmId);
+        Checker.checkFilmExistence(filmId, jdbcTemplate);
         String sql = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
                 "(SELECT genre_id FROM genres AS g WHERE g.genre_id = fg.genre_id) AS genre_id, " +
                 "(SELECT name FROM genres AS g WHERE g.genre_id = fg.genre_id) AS genres, " +
@@ -125,55 +126,60 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN film_mpa AS fm ON f.film_id=fm.film_id " +
                 "WHERE f.film_id=?;";
         List<Film> film = jdbcTemplate.query(sql, (rs, rowNum) -> Mapper.film.mapRow(rs, rowNum), filmId);
-        log.info("Из базы данных выгружен фильм {} [id] {}.", film.get(0).getName(), film.get(0).getId());
+        log.info("Из базы данных выгружен фильм {} [id {}].", film.get(0).getName(), film.get(0).getId());
         return film.get(0);
     }
 
     @Override
     public void removeFilm(int filmId) {
-        checkFilmExistence(filmId);
+        Checker.checkFilmExistence(filmId, jdbcTemplate);
         String sql = "DELETE FROM films WHERE film_id = ?";
         jdbcTemplate.update(sql, filmId);
-        log.info("Из базы данных удалён фильм [id] {}.", filmId);
+        log.info("Из базы данных удалён фильм [id {}].", filmId);
     }
 
     @Override
     public Set<Integer> getFilmLikes(int filmId) {
-        checkFilmExistence(filmId);
+        Checker.checkFilmExistence(filmId, jdbcTemplate);
         Set<Integer> usersLiked = new HashSet<>();
         String sql = "SELECT user_id FROM users_liked WHERE film_id = ?";
-        SqlRowSet usersLikedRows = jdbcTemplate.queryForRowSet(sql,
-                filmId);
-        for (int i = 1; usersLikedRows.next(); i++) {
-            usersLiked.add(usersLikedRows.getInt(i));
+        SqlRowSet usersLikedRows = jdbcTemplate.queryForRowSet(sql, filmId);
+        while (usersLikedRows.next()) {
+            usersLiked.add(usersLikedRows.getInt("user_id"));
         }
-        log.info("Из базы данных выгружены лайки фильму [id] {}, всего {} лайков.", filmId, usersLiked.size());
+        log.info("Из базы данных выгружены лайки фильму [id {}], всего {} лайков.", filmId, usersLiked.size());
         return usersLiked;
     }
 
     @Override
     public void addLike(int filmId, int userId) {
-        checkFilmExistence(filmId);
-        String sql = "INSERT INTO users_liked (film_id, user_id) VALUES (?,?);";
-        jdbcTemplate.update(sql, filmId, userId);
-        log.info("В базу данных добавлен лайк фильму [id {}] от пользователя [id] {}", filmId, userId);
+        Checker.checkFilmExistence(filmId, jdbcTemplate);
+        Checker.checkUserExistence(userId, jdbcTemplate);
+        Set<Integer> usersLiked = getFilmLikes(filmId);
+        if (!usersLiked.contains(userId)) {
+            String sql = "INSERT INTO users_liked (film_id, user_id) VALUES (?,?);";
+            jdbcTemplate.update(sql, filmId, userId);
+            log.info("В базу данных добавлен лайк фильму [id {}] от пользователя [id {}]", filmId, userId);
+        } else {
+            log.info("Лайк фильму [id {}] от пользователя [id {}] уже существует.", filmId, userId);
+            throw new AlreadyExistsException(
+                    String.format("Лайк фильму [id %s] от пользователя [id %s] уже существует.", filmId, userId));
+        }
     }
 
     @Override
     public void removeLike(int filmId, int userId) {
-        checkFilmExistence(filmId);
-        String sql = "DELETE FROM users_liked WHERE film_id=? AND user_id=?;";
-        jdbcTemplate.update(sql, filmId, userId);
-        log.info("Из базы данных удалён лайк фильму [id {}] от пользователя [id] {}", filmId, userId);
-    }
-
-    private void checkFilmExistence(int filmId) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT film_id FROM films WHERE film_id = ?",
-                filmId);
-        if (!filmRows.next()) {
-            log.info("Произошла ошибка. Фильма с [id {}] не существует.", filmId);
+        Checker.checkFilmExistence(filmId, jdbcTemplate);
+        Checker.checkUserExistence(userId, jdbcTemplate);
+        Set<Integer> usersLiked = getFilmLikes(filmId);
+        if (usersLiked.contains(userId)) {
+            String sql = "DELETE FROM users_liked WHERE film_id=? AND user_id=?;";
+            jdbcTemplate.update(sql, filmId, userId);
+            log.info("Из базы данных удалён лайк фильму [id {}] от пользователя [id {}]", filmId, userId);
+        } else {
+            log.info("Лайк фильму [id {}] от пользователя [id {}] не найден.", filmId, userId);
             throw new NotFoundException(
-                    String.format("Произошла ошибка. Фильма с [id %s] не существует.", filmId));
+                    String.format("Лайк фильму [id %s] от пользователя [id %s] не найден.", filmId, userId));
         }
     }
 }

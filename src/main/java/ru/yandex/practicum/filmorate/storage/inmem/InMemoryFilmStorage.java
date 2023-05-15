@@ -40,7 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         Film film = films.get(filmId);
         if (film == null) {
             log.info("Фильм {} НЕ найден.", filmId);
-            throw new NotFoundException("Фильм " + filmId + " НЕ найден.");
+            throw new NotFoundException("Фильм [id " + filmId + "] НЕ найден.");
         }
         log.info("Возвращаем запрошенный фильм {}.", film);
         return film;
@@ -50,39 +50,39 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film updateFilm(Film film) {
         if (!films.containsKey(film.getId())) {
             log.info("Фильм {} НЕ найден.", film.getId());
-            throw new NotFoundException("Фильм " + film.getId() + " НЕ найден.");
+            throw new NotFoundException("Фильм [id " + film.getId() + "] НЕ найден.");
         }
         Validator.validate(film);
         films.replace(film.getId(), film);
-        log.info("Фильм {} обновлён.", film.getId());
+        log.info("Фильм [id {}] обновлён.", film.getId());
         return film;
     }
 
     @Override
     public void removeFilm(int filmId) {
         if (!films.containsKey(filmId)) {
-            log.info("Фильм {} НЕ найден.", filmId);
-            throw new NotFoundException("Фильм " + filmId + " НЕ найден.");
+            log.info("Фильм [id {}] НЕ найден.", filmId);
+            throw new NotFoundException("Фильм [id " + filmId + "] НЕ найден.");
         }
     }
 
     @Override
     public Set<Integer> getFilmLikes(int filmId) {
         Set<Integer> users = getFilm(filmId).getUsersLiked();
-        log.info("Из базы данных выгружены лайки фильму id {}, всего {} лайков.", filmId, users.size());
+        log.info("Из базы данных выгружены лайки фильму [id {}], всего {} лайков.", filmId, users.size());
         return users;
     }
 
     @Override
     public void addLike(int filmId, int userId) {
         getFilm(filmId).getUsersLiked().add(userId);
-        log.info("Добавлен лайк фильму id {} от пользователя id {}", filmId, userId);
+        log.info("Добавлен лайк фильму [id {}] от пользователя [id {}].", filmId, userId);
     }
 
     @Override
     public void removeLike(int filmId, int userId) {
         getFilm(filmId).getUsersLiked().remove(userId);
-        log.info("Удалён лайк фильму id {} от пользователя id {}", filmId, userId);
+        log.info("Удалён лайк фильму [id {}] от пользователя [id {}]", filmId, userId);
     }
 
     private int idGenerator() {

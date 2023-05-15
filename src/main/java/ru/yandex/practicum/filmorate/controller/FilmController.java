@@ -27,13 +27,6 @@ public class FilmController {
         return filmService.addFilm(film);
     }
 
-    @PostMapping("/sample")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Film addSampleFilm() {
-        log.info("Принят запрос на добавление нового SAMPLE фильма.");
-        return filmService.createSampleFilm();
-    }
-
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Film> getFilms() {
