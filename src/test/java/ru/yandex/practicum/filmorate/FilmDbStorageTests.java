@@ -162,6 +162,12 @@ public class FilmDbStorageTests {
     }
 
     private void loadUsers() {
+        List<User> users = createUsers();
+        testUsers.add(users.get(0));
+        testUsers.add(users.get(1));
+    }
+
+    public static List<User> createUsers() {
         User user1 = new User();
         user1.setEmail("aaaawww@ya.ru");
         user1.setBirthday(DateUtility.formatToDate("2000-11-11"));
@@ -170,7 +176,6 @@ public class FilmDbStorageTests {
         user2.setEmail("bbbbwww@ya.ru");
         user2.setLogin("bbbbwwww");
         user2.setBirthday(DateUtility.formatToDate("2000-11-11"));
-        testUsers.add(user1);
-        testUsers.add(user2);
+        return List.of(user1, user2);
     }
 }

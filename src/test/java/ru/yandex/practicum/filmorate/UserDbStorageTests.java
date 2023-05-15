@@ -83,9 +83,8 @@ class UserDbStorageTests {
 
 	@Test
 	public void testGetUsers() {
-		userStorage.addUser(testUsers.get(0));
-		userStorage.addUser(testUsers.get(1));
-		assertThat(userStorage.getUsers()).isEqualTo(testUsers);
+		List<User> userList = FilmDbStorageTests.createUsers();
+		assertThat(userStorage.getUsers()).isEqualTo(userList);
 	}
 
 	@Test
@@ -159,4 +158,5 @@ class UserDbStorageTests {
 						assertThat(user).hasFieldOrPropertyWithValue("id", 1)
 				);
 	}
+
 }
