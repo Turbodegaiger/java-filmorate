@@ -83,8 +83,10 @@ class UserDbStorageTests {
 
 	@Test
 	public void testGetUsers() {
-		List<User> userList = FilmDbStorageTests.createUsers();
-		assertThat(userStorage.getUsers()).isEqualTo(userList);
+		userStorage.addUser(testUsers.get(0));
+		userStorage.addUser(testUsers.get(1));
+	//	List<User> userList = FilmDbStorageTests.createUsers();
+		assertThat(userStorage.getUsers()).isEqualTo(testUsers);
 	}
 
 	@Test
