@@ -12,7 +12,7 @@ public class DateUtility {
 
     public static Date formatToDate(String date) {
         try {
-            return DateFormat.getDateInstance().parse(date);
+            return formatTo.parse(date);
         } catch (ParseException e) {
             throw new ValidationException("Некорректный формат даты. Ожидается строка формата yyyy-MM-dd.");
         }
