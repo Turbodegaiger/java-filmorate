@@ -20,7 +20,7 @@ public class Film {
     @Size(min = 1, max = 200)
     private String description;
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Europe/Moscow")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "Europe/Moscow")
     private Date releaseDate;
     @Min(1)
     private Long duration;
