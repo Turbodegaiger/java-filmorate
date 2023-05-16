@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.date.DateUtility;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -28,7 +29,7 @@ public class FilmMapper implements RowMapper<Film> {
                 rs.getInt("film_id"),
                 rs.getString("name"),
                 rs.getString("description"),
-                rs.getDate("release_date"),
+                rs.getDate("release_date", DateUtility.calendar),
                 rs.getLong("duration"),
                 getGenreList(rs, rowNum),
                 mpa);
@@ -36,7 +37,7 @@ public class FilmMapper implements RowMapper<Film> {
         SqlRowSet usersLikedRows = jdbcTemplate.queryForRowSet(sql,
                 film.getId());
         Set<Integer> usersLiked = new HashSet<>();
-        for (int i = 0; usersLikedRows.next(); i++) {
+        while (usersLikedRows.next()) {
             usersLiked.add(usersLikedRows.getInt("user_id"));
         }
         film.setUsersLiked(usersLiked);
