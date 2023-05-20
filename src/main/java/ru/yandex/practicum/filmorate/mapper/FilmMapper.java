@@ -2,17 +2,13 @@ package ru.yandex.practicum.filmorate.mapper;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.date.DateUtility;
+import ru.yandex.practicum.filmorate.util.DateUtility;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class FilmMapper implements RowMapper<Film> {
@@ -31,28 +27,7 @@ public class FilmMapper implements RowMapper<Film> {
                 rs.getString("description"),
                 rs.getDate("release_date", DateUtility.calendar),
                 rs.getLong("duration"),
-                getGenreList(rs, rowNum),
                 mpa);
-        String sql = "SELECT user_id FROM users_liked WHERE film_id=?;";
-        SqlRowSet usersLikedRows = jdbcTemplate.queryForRowSet(sql,
-                film.getId());
-        Set<Integer> usersLiked = new HashSet<>();
-        while (usersLikedRows.next()) {
-            usersLiked.add(usersLikedRows.getInt("user_id"));
-        }
-        film.setUsersLiked(usersLiked);
         return film;
-    }
-
-    private List<Genre> getGenreList(ResultSet rs, int rowNum) throws SQLException {
-        List<Genre> genres = new ArrayList<>();
-        if (rs.getString("genres") == null) {
-            return genres;
-        }
-        do {
-            genres.add(Mapper.genre.mapRow(rs, rowNum));
-        } while (rs.next());
-        genres = genres.stream().distinct().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toList());
-        return genres;
     }
 }

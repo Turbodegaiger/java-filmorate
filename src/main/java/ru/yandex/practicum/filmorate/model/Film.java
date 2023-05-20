@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.yandex.practicum.filmorate.util.DateUtility;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -26,8 +26,7 @@ public class Film {
     private Long duration;
     private List<Genre> genres;
     private Mpa mpa;
-    @JsonIgnore
-    private Set<Integer> usersLiked = new HashSet<>();
+    private long rate;
 
     public Film(String name, String description, Date releaseDate, Long duration, List<Genre> genres, Mpa mpa) {
         this.name = name;
@@ -36,22 +35,6 @@ public class Film {
         this.duration = duration;
         this.genres = genres;
         this.mpa = mpa;
-    }
-
-    public Film(String name, String description, Date releaseDate, Long duration, Mpa mpa) {
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.mpa = mpa;
-    }
-
-    public Film(String name, String description, Date releaseDate, Long duration, List<Genre> genres) {
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.genres = genres;
     }
 
     public Film(Integer id, String name, String description, Date releaseDate, Long duration, List<Genre> genres, Mpa mpa) {
@@ -64,9 +47,17 @@ public class Film {
         this.mpa = mpa;
     }
 
-    @JsonIgnore
-    public Integer getLikesCount() {
-        return usersLiked.size();
+    public Film(Integer id, String name, String description, Date releaseDate, Long duration, Mpa mpa) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+    }
+
+    public String getReleaseDate() {
+        return DateUtility.formatToString(releaseDate);
     }
 
     @Override

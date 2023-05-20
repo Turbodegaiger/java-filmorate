@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.date;
+package ru.yandex.practicum.filmorate.util;
 
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
@@ -22,6 +22,6 @@ public class DateUtility {
     }
 
     public static String formatToString(Date date) {
-        return DateFormat.getDateInstance().format(date);
+        return formatTo.format(date);
     }
 }

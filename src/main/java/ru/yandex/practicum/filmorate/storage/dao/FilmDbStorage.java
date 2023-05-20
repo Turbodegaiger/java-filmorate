@@ -10,13 +10,11 @@ import ru.yandex.practicum.filmorate.mapper.Mapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.validator.Checker;
-import ru.yandex.practicum.filmorate.validator.Validator;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component("filmDbStorage")
 @Slf4j
@@ -33,19 +31,20 @@ public class FilmDbStorage implements FilmStorage {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT name FROM films WHERE name = ? AND release_date = ?",
                 film.getName(), film.getReleaseDate());
         if (filmRows.next()) {
-            log.info("Ошибка при создании фильма - {} с датой релиза {} уже существует.", film.getName(), film.getReleaseDate());
+            log.info("Ошибка при создании фильма - {} с датой релиза {} уже существует.",
+                    film.getName(), film.getReleaseDate());
             throw new AlreadyExistsException(
                     String.format("Ошибка при создании фильма - %s с датой релиза %s уже существует.",
                             film.getName(), film.getReleaseDate()));
         }
-        Validator.validate(film);
-        String sql = "INSERT INTO films (name, description, release_date, duration) " +
-                "VALUES (?, ?, ?, ?);";
+        String sql = "INSERT INTO films (name, description, release_date, duration, mpa_id) " +
+                "VALUES (?, ?, ?, ?, ?);";
         jdbcTemplate.update(sql,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
-                film.getDuration());
+                film.getDuration(),
+                film.getMpa().getId());
         SqlRowSet filmIdRows = jdbcTemplate.queryForRowSet("SELECT film_id FROM films WHERE name = ? AND release_date = ?;",
                 film.getName(), film.getReleaseDate());
         Integer filmId = 0;
@@ -61,53 +60,39 @@ public class FilmDbStorage implements FilmStorage {
                         genre.getId());
             }
         }
-        sql = "INSERT INTO film_mpa (film_id, mpa_id) " +
-                "VALUES (?, (SELECT mpa_id FROM mpa WHERE mpa_id = ?));";
-        jdbcTemplate.update(sql,
-                filmId,
-                film.getMpa().getId());
         log.info("Фильм {} c датой выхода {} добавлен в базу данных.", film.getName(), film.getReleaseDate());
         return getFilm(filmId);
     }
 
     @Override
     public List<Film> getFilms() {
-        List<Film> filmList = new ArrayList<>();
-        String sql = "SELECT film_id FROM films;";
-        SqlRowSet filmIdRows = jdbcTemplate.queryForRowSet(sql);
-        while (filmIdRows.next()) {
-            filmList.add(getFilm(filmIdRows.getInt("film_id")));
-        }
+        String sql = "SELECT * FROM films f, mpa m WHERE f.mpa_id = m.mpa_id;";
+        List<Film> filmList = jdbcTemplate.query(sql, (rs, rowNum) -> Mapper.film.mapRow(rs, rowNum));
         log.info("Из базы данных выгружен список всех фильмов размером {} записей.", filmList.size());
         return filmList;
     }
 
     @Override
     public Film updateFilm(Film film) {
-        Checker.checkFilmExistence(film.getId(), jdbcTemplate);
-        Validator.validate(film);
         String sql = "UPDATE films " +
-                "SET name = ?, description = ?, release_date = ?, duration = ? " +
+                "SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
                 "WHERE film_id = ?; " +
                 "DELETE FROM film_genres " +
-                "WHERE film_id = ?; " +
-                "DELETE FROM film_mpa " +
-                "WHERE film_id = ?;";
-        jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getDuration(), film.getId(), film.getId(), film.getId());
+                "WHERE film_id = ?; ";
+        int rowsAffected = jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(),
+                film.getDuration(), film.getMpa().getId(), film.getId(), film.getId());
+        if (rowsAffected <= 0) {
+            log.info("При обновлении фильма {} произошла ошибка - [id {}] не найден.", film.getName(), film.getId());
+            throw new NotFoundException(String.format("При обновлении фильма %s произошла ошибка - [id %s] не найден.",
+                    film.getName(), film.getId()));
+        }
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             sql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?,?);";
-            for (Genre genre : film.getGenres()) {
+            for (Genre genre : film.getGenres().stream().distinct().collect(Collectors.toList())) {
                 jdbcTemplate.update(sql,
                         film.getId(),
                         genre.getId());
             }
-        }
-        if (film.getMpa() != null) {
-            sql = "INSERT INTO film_mpa (film_id, mpa_id) VALUES (?,?);";
-            jdbcTemplate.update(sql,
-                    film.getId(),
-                    film.getMpa().getId());
         }
         log.info("Фильм {} с [id {}] обновлён.", film.getName(), film.getId());
         return getFilm(film.getId());
@@ -115,71 +100,53 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilm(int filmId) {
-        Checker.checkFilmExistence(filmId, jdbcTemplate);
-        String sql = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
-                "(SELECT genre_id FROM genres AS g WHERE g.genre_id = fg.genre_id) AS genre_id, " +
-                "(SELECT name FROM genres AS g WHERE g.genre_id = fg.genre_id) AS genres, " +
-                "(SELECT mpa_id FROM mpa AS r WHERE r.mpa_id = fm.mpa_id) AS mpa_id," +
-                "(SELECT name FROM mpa AS r WHERE r.mpa_id = fm.mpa_id) AS mpa " +
-                "FROM films AS f " +
-                "LEFT JOIN film_genres AS fg ON f.film_id=fg.film_id " +
-                "LEFT JOIN film_mpa AS fm ON f.film_id=fm.film_id " +
-                "WHERE f.film_id=?;";
+        String sql = "SELECT * FROM films f, mpa m WHERE f.film_id = ? AND m.mpa_id = f.mpa_id;";
         List<Film> film = jdbcTemplate.query(sql, (rs, rowNum) -> Mapper.film.mapRow(rs, rowNum), filmId);
+        if (film.size() != 1) {
+            log.info("Ошибка при выгрузке фильма. Фильм [id {}] не найден.", filmId);
+            throw new NotFoundException(String.format("Ошибка при выгрузке фильма. Фильм [id %s] не найден.", filmId));
+        }
         log.info("Из базы данных выгружен фильм {} [id {}].", film.get(0).getName(), film.get(0).getId());
         return film.get(0);
     }
 
     @Override
     public void removeFilm(int filmId) {
-        Checker.checkFilmExistence(filmId, jdbcTemplate);
         String sql = "DELETE FROM films WHERE film_id = ?";
-        jdbcTemplate.update(sql, filmId);
+        int rowsAffected = jdbcTemplate.update(sql, filmId);
+        if (rowsAffected <= 0) {
+            log.info("Ошибка при удалении. Фильм [id {}] не найден.", filmId);
+            throw new NotFoundException(String.format("Ошибка при удалении. Фильм [id %s] не найден.", filmId));
+        }
         log.info("Из базы данных удалён фильм [id {}].", filmId);
     }
 
     @Override
     public Set<Integer> getFilmLikes(int filmId) {
-        Checker.checkFilmExistence(filmId, jdbcTemplate);
         Set<Integer> usersLiked = new HashSet<>();
         String sql = "SELECT user_id FROM users_liked WHERE film_id = ?";
         SqlRowSet usersLikedRows = jdbcTemplate.queryForRowSet(sql, filmId);
-        while (usersLikedRows.next()) {
-            usersLiked.add(usersLikedRows.getInt("user_id"));
+        if (usersLikedRows.next()) {
+            do {
+                usersLiked.add(usersLikedRows.getInt("user_id"));
+            } while (usersLikedRows.next());
         }
         log.info("Из базы данных выгружены лайки фильму [id {}], всего {} лайков.", filmId, usersLiked.size());
         return usersLiked;
     }
 
     @Override
-    public void addLike(int filmId, int userId) {
-        Checker.checkFilmExistence(filmId, jdbcTemplate);
-        Checker.checkUserExistence(userId, jdbcTemplate);
-        Set<Integer> usersLiked = getFilmLikes(filmId);
-        if (!usersLiked.contains(userId)) {
-            String sql = "INSERT INTO users_liked (film_id, user_id) VALUES (?,?);";
-            jdbcTemplate.update(sql, filmId, userId);
-            log.info("В базу данных добавлен лайк фильму [id {}] от пользователя [id {}]", filmId, userId);
-        } else {
-            log.info("Лайк фильму [id {}] от пользователя [id {}] уже существует.", filmId, userId);
-            throw new AlreadyExistsException(
-                    String.format("Лайк фильму [id %s] от пользователя [id %s] уже существует.", filmId, userId));
-        }
+    public List<Film> getMostlyPopular(int count) {
+        String sql = "SELECT * FROM films f, mpa m WHERE m.mpa_id = f.mpa_id ORDER BY rate DESC LIMIT ?";
+        List<Film> popularFilms = jdbcTemplate.query(sql, (rs, rowNum) -> Mapper.film.mapRow(rs, rowNum), count);
+        log.info("Из базы данных выгружен список популярных фильмов размером {} записей.", popularFilms.size());
+        return popularFilms;
     }
 
-    @Override
-    public void removeLike(int filmId, int userId) {
-        Checker.checkFilmExistence(filmId, jdbcTemplate);
-        Checker.checkUserExistence(userId, jdbcTemplate);
-        Set<Integer> usersLiked = getFilmLikes(filmId);
-        if (usersLiked.contains(userId)) {
-            String sql = "DELETE FROM users_liked WHERE film_id=? AND user_id=?;";
-            jdbcTemplate.update(sql, filmId, userId);
-            log.info("Из базы данных удалён лайк фильму [id {}] от пользователя [id {}]", filmId, userId);
-        } else {
-            log.info("Лайк фильму [id {}] от пользователя [id {}] не найден.", filmId, userId);
-            throw new NotFoundException(
-                    String.format("Лайк фильму [id %s] от пользователя [id %s] не найден.", filmId, userId));
-        }
+    public List<Genre> getFilmGenres(int filmId) {
+        String sql = "SELECT * FROM film_genres fg, genres g WHERE fg.film_id = ? AND g.genre_id = fg.genre_id;";
+        List<Genre> filmGenres = jdbcTemplate.query(sql, (rs, rowNum) -> Mapper.genre.mapRow(rs, rowNum), filmId);
+        log.info("Из базы данных выгружен список жанров фильма [id {}] размером {} записей.", filmId, filmGenres.size());
+        return filmGenres;
     }
 }

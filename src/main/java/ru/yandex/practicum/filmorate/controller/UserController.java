@@ -24,28 +24,36 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public User addUser(@RequestBody User user) {
         log.info("Принят запрос на добавление нового пользователя {}.", user);
-        return userService.addUser(user);
+        User response = userService.addUser(user);
+        log.info("Отправлен ответ на запрос добавления нового пользователя {}.", response);
+        return response;
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<User> getUsers() {
         log.info("Принят запрос на получение списка пользователей");
-        return userService.getUsers();
+        List<User> response = userService.getUsers();
+        log.info("Отправлен ответ на запрос получения списка пользователей, размером {} записей.", response.size());
+        return response;
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public User getUser(@PathVariable int id) {
         log.info("Принят запрос на получение пользователя [id {}].", id);
-        return userService.getUser(id);
+        User response = userService.getUser(id);
+        log.info("Отправлен ответ на запрос получения пользователя [id {}]: {}.", id, response);
+        return response;
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public User updateUser(@RequestBody User user) {
         log.info("Принят запрос на обновление пользователя [id {}].", user.getId());
-        return userService.updateUser(user);
+        User response = userService.updateUser(user);
+        log.info("Отправлен ответ на запрос обновления пользователя [id {}]: {}.", response.getId(), response);
+        return response;
     }
 
     @DeleteMapping("/{id}")
@@ -73,13 +81,19 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public List<User> getFriendList(@PathVariable int id) {
         log.info("Получен запрос на получение списка друзей у пользователя [id {}].", id);
-        return userService.getFriendList(id);
+        List<User> response = userService.getFriendList(id);
+        log.info("Отправлен ответ на запрос получения списка друзей у пользователя [id {}] размером {} записей: {}.",
+                id, response.size(),  response);
+        return response;
     }
 
     @GetMapping("{id}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
     public List<User> getCommonFriendsList(@PathVariable int id, @PathVariable int otherId) {
         log.info("Получен запрос на получение списка общих друзей у пользователей [id {}] и [id {}].", id, otherId);
-        return userService.getCommonFriendsList(id, otherId);
+        List<User> response = userService.getCommonFriendsList(id, otherId);
+        log.info("Отправлен ответ на запрос получения списка общих друзей у пользователей " +
+                "[id {}] и [id {}] размером {} записей: {}.", id, otherId, response.size(), response);
+        return response;
     }
 }

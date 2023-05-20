@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.date.DateUtility;
+import ru.yandex.practicum.filmorate.storage.dao.*;
+import ru.yandex.practicum.filmorate.util.DateUtility;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserDbStorageTests {
 	private final UserDbStorage userStorage;
-	private List<User> testUsers;
+    private final FriendDbStorage friendDbStorage;
+
+    private List<User> testUsers;
 	private List<User> testUpdateUsers;
 
 	@BeforeEach
@@ -116,38 +118,38 @@ class UserDbStorageTests {
 
 	@Test
 	public void testAddFriendAndGetUserFriends() {
-		userStorage.addFriend(1,2);
+        friendDbStorage.addFriend(1,2);
 		assertThat(userStorage.getUserFriends(1)).isEqualTo(Set.of(2));
 	}
 
 	@Test
 	public void testWrongAddFriend() {
-		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> userStorage.addFriend(1,3));
-		assertThatExceptionOfType(AlreadyExistsException.class).isThrownBy(() -> userStorage.addFriend(1,1));
-		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> userStorage.addFriend(1,0));
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> friendDbStorage.addFriend(1,3));
+		assertThatExceptionOfType(AlreadyExistsException.class).isThrownBy(() -> friendDbStorage.addFriend(1,1));
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> friendDbStorage.addFriend(1,0));
 	}
 
 	@Test
 	public void testRemoveFriend() {
 		userStorage.addUser(new User(3, "qeq", "qqq@ya.ru", "login", DateUtility.formatToDate("2001-01-01")));
 		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of());
-		userStorage.addFriend(2,1);
+        friendDbStorage.addFriend(2,1);
 		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of(1));
-		userStorage.addFriend(2,3);
+        friendDbStorage.addFriend(2,3);
 		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of(1,3));
-		userStorage.removeFriend(2,1);
+        friendDbStorage.removeFriend(2,1);
 		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of(3));
-		userStorage.removeFriend(2,3);
+        friendDbStorage.removeFriend(2,3);
 		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of());
 	}
 
 	@Test
 	public void testWrongRemoveFriend() {
-		userStorage.addFriend(2,1);
-		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> userStorage.removeFriend(2,0));
-		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> userStorage.removeFriend(2,3));
-		assertThatExceptionOfType(AlreadyExistsException.class).isThrownBy(() -> userStorage.removeFriend(2,2));
-		userStorage.removeFriend(2,1);
+        friendDbStorage.addFriend(2,1);
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> friendDbStorage.removeFriend(2,0));
+		assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> friendDbStorage.removeFriend(2,3));
+		assertThatExceptionOfType(AlreadyExistsException.class).isThrownBy(() -> friendDbStorage.removeFriend(2,2));
+        friendDbStorage.removeFriend(2,1);
 		assertThat(userStorage.getUserFriends(2)).isEqualTo(Set.of());
 	}
 

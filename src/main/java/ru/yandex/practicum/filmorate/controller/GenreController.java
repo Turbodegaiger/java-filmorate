@@ -21,11 +21,17 @@ public class GenreController {
 
     @GetMapping("/{id}")
     public Genre getGenreById(@PathVariable int id) {
-        return genreService.getGenreById(id);
+        log.info("Принят запрос на получение жанра [id {}].", id);
+        Genre response = genreService.getGenreById(id);
+        log.info("Отправлен ответ на запрос получения жанра [id {}]: {}.", id, response);
+        return response;
     }
 
     @GetMapping
     public List<Genre> getAllGenres() {
-        return genreService.getAllGenres();
+        log.info("Принят запрос на получение списка жанров.");
+        List<Genre> response = genreService.getAllGenres();
+        log.info("Отправлен ответ на запрос получения списка жанров размером {} записей: {}.", response.size(), response);
+        return response;
     }
 }
