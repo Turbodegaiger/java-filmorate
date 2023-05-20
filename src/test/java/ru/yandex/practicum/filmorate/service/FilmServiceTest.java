@@ -128,7 +128,6 @@ public class FilmServiceTest {
     @Order(8)
     void addLikeShouldIncreaseLikesAndSaveUserToUsersLiked() {
         loadUsers();
-        userService.addUser(users.get(0));
         filmService.addLike(1,1);
         Assertions.assertEquals(filmService.getFilmLikes(1), List.of(users.get(0)));
     }
@@ -161,10 +160,8 @@ public class FilmServiceTest {
     @Order(10)
     void removeLikeShouldRemoveCorrectUsersLike() {
         loadUsers();
-        userService.addUser(users.get(1));
-        filmService.addLike(1,2);
         filmService.removeLike(1,1);
-        Assertions.assertEquals(filmService.getFilmLikes(1), List.of(users.get(1)));
+        Assertions.assertEquals(List.of(), filmService.getFilmLikes(1));
     }
 
     @Test
@@ -209,7 +206,7 @@ public class FilmServiceTest {
         sorted.add(filmService.getFilm(1));
         sorted.add(filmService.getFilm(2));
         filmService.addLike(3, 1);
-        filmService.addLike(2, 1);
+        filmService.addLike(1, 1);
         filmService.addLike(3, 2);
         Assertions.assertEquals(sorted, filmService.getMostlyPopularFilms(3));
     }

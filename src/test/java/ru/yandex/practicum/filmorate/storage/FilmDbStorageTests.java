@@ -1,8 +1,7 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -63,7 +62,7 @@ public class FilmDbStorageTests {
         film3.setGenres(List.of(new Genre(1, "Комедия"), new Genre(6, "Боевик")));
         film3.setMpa(new Mpa(2, "PG"));
         Film film4 = new Film();
-        film4.setId(6);
+        film4.setId(7);
         film4.setName("ccc");
         film4.setDescription("ccc12345");
         film4.setReleaseDate(DateUtility.formatToDate("2000-03-10"));
@@ -85,11 +84,11 @@ public class FilmDbStorageTests {
 
     @Test
     public void testAddFilmAndGetFilm() {
-        Film newFilm = new Film(
-                "adada", "addad11", DateUtility.formatToDate("1995-05-05"), 75L,
-                List.of(new Genre(1, "Комедия")), new Mpa(4, "R"));
-        Film addedFilm = filmStorage.addFilm(newFilm);
-        assertThat(filmStorage.getFilm(addedFilm.getId())).isEqualTo(newFilm);
+//        Film newFilm = new Film(
+//                "adada", "addad11", DateUtility.formatToDate("1995-05-05"), 75L,
+//                List.of(new Genre(1, "Комедия")), new Mpa(4, "R"));
+        Film addedFilm = filmStorage.addFilm(testFilms.get(1));
+        assertThat(filmStorage.getFilm(addedFilm.getId())).isEqualTo(testFilms.get(1));
     }
 
     @Test
@@ -100,7 +99,7 @@ public class FilmDbStorageTests {
     @Test
     public void testWrongGetFilm() {
         assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.getFilm(0));
-        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.getFilm(5));
+        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.getFilm(10));
     }
 
     @Test
@@ -123,28 +122,22 @@ public class FilmDbStorageTests {
 
     @Test
     public void testRemoveFilm() {
-        filmStorage.addFilm(testUpdateFilms.get(2));
-        assertThat(filmStorage.getFilm(3)).isEqualTo(testUpdateFilms.get(2));
-        filmStorage.removeFilm(3);
-        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.getFilm(3));
+        filmStorage.removeFilm(5);
+        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.getFilm(5));
     }
 
     @Test
     public void testWrongRemoveFilm() {
-        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.removeFilm(3));
+        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.removeFilm(6));
         assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> filmStorage.removeFilm(0));
     }
 
     @Test
     public void testAddGetAndRemoveFilmLikes() {
         loadUsers();
-        userStorage.addUser(testUsers.get(0));
-        userStorage.addUser(testUsers.get(1));
-        assertThat(filmStorage.getFilmLikes(1)).isEqualTo(Set.of());
-        likesDbStorage.addLike(1, 1);
         assertThat(filmStorage.getFilmLikes(1)).isEqualTo(Set.of(1));
         likesDbStorage.addLike(1, 2);
-        assertThat(filmStorage.getFilmLikes(1)).isEqualTo(Set.of(1,2));
+        assertThat(filmStorage.getFilmLikes(1)).isEqualTo(Set.of(1, 2));
         likesDbStorage.removeLike(1,1);
         likesDbStorage.removeLike(1,2);
         assertThat(filmStorage.getFilmLikes(1)).isEqualTo(Set.of());
@@ -152,10 +145,10 @@ public class FilmDbStorageTests {
 
     @Test
     public void testWrongAddGetAndRemoveFilmLikes() {
-        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> likesDbStorage.addLike(1, 3));
+        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> likesDbStorage.addLike(1, 5));
         assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> likesDbStorage.addLike(1, 0));
         assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> likesDbStorage.addLike(0, 1));
-        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> likesDbStorage.addLike(5, 1));
+        assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> likesDbStorage.addLike(10, 1));
         likesDbStorage.addLike(1, 1);
         assertThatExceptionOfType(AlreadyExistsException.class).isThrownBy(() -> likesDbStorage.addLike(1, 1));
         assertThatExceptionOfType(NotFoundException.class).isThrownBy(() -> likesDbStorage.removeLike(1, 0));

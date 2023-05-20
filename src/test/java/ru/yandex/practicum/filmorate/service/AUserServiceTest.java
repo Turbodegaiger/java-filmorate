@@ -21,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class UserServiceTest {
+@Order(2)
+public class AUserServiceTest {
     private final UserService userService;
     List<User> users;
 
