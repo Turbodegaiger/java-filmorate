@@ -105,4 +105,10 @@ public class UserDbStorage implements UserStorage {
         log.info("Из базы данных выгружен список друзей пользователя [id {}]", userId);
         return friends;
     }
+
+    @Override
+    public void removeAllUsers() {
+        jdbcTemplate.update("DELETE FROM users;");
+        jdbcTemplate.update("ALTER TABLE users ALTER COLUMN user_id RESTART WITH 1;");
+    }
 }

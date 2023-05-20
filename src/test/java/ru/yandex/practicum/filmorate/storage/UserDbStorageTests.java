@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserDbStorageTests {
 	private final UserDbStorage userStorage;
     private final FriendDbStorage friendDbStorage;
@@ -69,6 +70,7 @@ class UserDbStorageTests {
 	}
 
 	@Test
+	@Order(1)
 	public void testAddUserAndGetUser() {
 		User newUser = new User(
 				4, "adada", "addada@ya.ru", "woooow", DateUtility.formatToDate("1995-05-05"));
@@ -89,8 +91,11 @@ class UserDbStorageTests {
 
 	@Test
 	public void testGetUsers() {
-		System.out.println(userStorage.getUsers());
-		assertThat(userStorage.getUsers()).isEqualTo(testUsers);
+		List<User> userList = new ArrayList<>();
+		User user = userStorage.addUser(testUsers.get(0));
+		userList.add(userStorage.getUser(1).get());
+		userList.add(user);
+		assertThat(userStorage.getUsers()).isEqualTo(userList);
 	}
 
 	@Test

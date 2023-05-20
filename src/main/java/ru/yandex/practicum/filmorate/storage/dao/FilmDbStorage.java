@@ -149,4 +149,10 @@ public class FilmDbStorage implements FilmStorage {
         log.info("Из базы данных выгружен список жанров фильма [id {}] размером {} записей.", filmId, filmGenres.size());
         return filmGenres;
     }
+
+    @Override
+    public void removeAllFilms() {
+        jdbcTemplate.update("DELETE FROM films;");
+        jdbcTemplate.update("ALTER TABLE films ALTER COLUMN film_id RESTART WITH 1;");
+    }
 }

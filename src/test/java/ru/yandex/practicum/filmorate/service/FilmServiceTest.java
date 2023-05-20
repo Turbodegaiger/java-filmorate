@@ -128,7 +128,8 @@ public class FilmServiceTest {
     @Order(8)
     void addLikeShouldIncreaseLikesAndSaveUserToUsersLiked() {
         loadUsers();
-        filmService.addLike(1,1);
+        int expectedId = userService.addUser(users.get(0)).getId();
+        filmService.addLike(1,expectedId);
         Assertions.assertEquals(filmService.getFilmLikes(1), List.of(users.get(0)));
     }
 
@@ -201,6 +202,7 @@ public class FilmServiceTest {
         film3.setMpa(new Mpa(4, "R"));
         film3.setDescription("333");
         filmService.addFilm(film3);
+        userService.addUser(users.get(1));
         List<Film> sorted = new ArrayList<>();
         sorted.add(filmService.getFilm(3));
         sorted.add(filmService.getFilm(1));
@@ -209,13 +211,15 @@ public class FilmServiceTest {
         filmService.addLike(1, 1);
         filmService.addLike(3, 2);
         Assertions.assertEquals(sorted, filmService.getMostlyPopularFilms(3));
+        filmService.removeAllFilms();
+        userService.removeAllUsers();
     }
 
     private void loadUsers() {
         User user1 = new User();
-        user1.setEmail("aaaa@ya.ru");
+        user1.setEmail("aaaa1@ya.ru");
         user1.setBirthday(DateUtility.formatToDate("2000-11-11"));
-        user1.setLogin("aaaa");
+        user1.setLogin("aaaa1");
         User user2 = new User();
         user2.setEmail("bbbb@ya.ru");
         user2.setLogin("bbbb");

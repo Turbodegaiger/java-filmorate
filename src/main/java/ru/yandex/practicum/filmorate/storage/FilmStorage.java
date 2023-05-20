@@ -18,6 +18,8 @@ public interface FilmStorage {
 
     void removeFilm(int filmId);
 
+    void removeAllFilms();
+
     Set<Integer> getFilmLikes(int filmId);
 
     List<Film> getMostlyPopular(int count);

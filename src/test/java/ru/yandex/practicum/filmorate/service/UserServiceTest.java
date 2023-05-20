@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Order(2)
-public class AUserServiceTest {
+public class UserServiceTest {
     private final UserService userService;
     List<User> users;
 
@@ -192,6 +192,7 @@ public class AUserServiceTest {
     @Order(16)
     void getFriendListShouldThrowExceptionIfNotFound() {
         Assertions.assertEquals(List.of(), userService.getFriendList(4));
+        userService.removeAllUsers();
     }
 
     void loadUsers() {

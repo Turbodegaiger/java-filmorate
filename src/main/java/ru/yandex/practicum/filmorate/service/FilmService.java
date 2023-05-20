@@ -82,6 +82,10 @@ public class FilmService {
         log.info("Лайк фильма [id {}] пользователем [id {}] удалён.", filmId, userId);
     }
 
+    public void removeAllFilms() {
+        filmStorage.removeAllFilms();
+    }
+
     public List<Film> getMostlyPopularFilms(int count) {
         List<Film> mostlyPopularFilms = filmStorage.getMostlyPopular(count);
         for (Film film : mostlyPopularFilms) {

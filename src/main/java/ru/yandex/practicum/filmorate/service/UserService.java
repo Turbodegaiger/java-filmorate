@@ -87,6 +87,10 @@ public class UserService {
         return new ArrayList<>(friendList);
     }
 
+    public void removeAllUsers() {
+        userStorage.removeAllUsers();
+    }
+
     private List<User> getUserListByIds(Collection<Integer> idList) {
         List<User> userList = new ArrayList<>();
         for (Integer friendId : idList) {
