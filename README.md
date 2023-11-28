@@ -1,5 +1,5 @@
 # java-filmorate
-Template repository for Filmorate project.
+Filmorate project gives a possibility to search movies to watch and do it with your friends.
 
 ![Database scheme](docs/Filmorate_db_scheme.png)
 
