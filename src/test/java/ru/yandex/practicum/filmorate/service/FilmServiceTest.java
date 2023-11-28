@@ -1,231 +1,229 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
-import ru.yandex.practicum.filmorate.date.DateUtility;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Order;
+import ru.yandex.practicum.filmorate.util.DateUtility;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FilmServiceTest {
-    UserService userService;
-    FilmService filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
-    List<Film> films = new ArrayList<>();
-    List<User> users = new ArrayList<>();
+    private final FilmService filmService;
+    private final UserService userService;
 
-    @BeforeEach
-    void setParameters() {
-        UserStorage storage = new InMemoryUserStorage();
-        userService = new UserService(storage);
-        filmService = new FilmService(new InMemoryFilmStorage(), storage);
-        films = new ArrayList<>();
-        users = new ArrayList<>();
-    }
+    List<Film> films;
+    List<User> users;
 
     @BeforeEach
     void loadFilms() {
+        films = new ArrayList<>();
+        users = new ArrayList<>();
         Film film1 = new Film();
-        film1.setName("buba");
-        film1.setReleaseDate(DateUtility.formatter("1991-11-12"));
-        film1.setDescription("111");
+        film1.setName("Evil buba in da forest");
+        film1.setReleaseDate(DateUtility.formatToDate("1999-11-12"));
+        film1.setDescription("Evil buba is behind you. Always.");
         film1.setDuration(90L);
+        film1.setGenres(List.of(new Genre(4,"Триллер")));
+        film1.setMpa(new Mpa(4,"R"));
         Film film2 = new Film();
         film2.setName("aboba");
-        film2.setReleaseDate(DateUtility.formatter("1999-12-11"));
+        film2.setReleaseDate(DateUtility.formatToDate("1999-12-11"));
         film2.setDuration(60L);
         film2.setDescription("222");
+        film2.setMpa(new Mpa(4,"R"));
         films.add(film1);
         films.add(film2);
     }
 
     @Test
+    @Order(1)
     void addFilmShouldReturnFilm() {
         Assertions.assertEquals(filmService.addFilm(films.get(0)), films.get(0));
     }
 
     @Test
+    @Order(2)
     void addFilmShouldThrowExceptionIfAlreadyExists() {
-        filmService.addFilm(films.get(0));
         final AlreadyExistsException exception = assertThrows(
                 AlreadyExistsException.class,
                 () -> filmService.addFilm(films.get(0))
         );
-        assertEquals("Фильм buba уже существует.", exception.getMessage(),
+        assertEquals("Ошибка при создании фильма - Evil buba in da forest с датой релиза 1999-11-12 уже существует.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма");
     }
 
     @Test
+    @Order(3)
     void getFilmsShouldReturnListOfFilms() {
-        filmService.addFilm(films.get(0));
         filmService.addFilm(films.get(1));
         Assertions.assertEquals(filmService.getFilms(), films);
     }
 
     @Test
+    @Order(4)
     void getFilmShouldReturnCorrectFilm() {
-        filmService.addFilm(films.get(0));
         Assertions.assertEquals(filmService.getFilm(1), films.get(0));
     }
 
     @Test
+    @Order(5)
     void getFilmShouldThrowExceptionIfNotFound() {
         final NotFoundException exception = assertThrows(
                 NotFoundException.class,
-                () -> filmService.getFilm(1)
+                () -> filmService.getFilm(3)
         );
-        assertEquals("Фильм 1 НЕ найден.", exception.getMessage(),
+        assertEquals("Ошибка при выгрузке фильма. Фильм [id 3] не найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма");
     }
 
     @Test
+    @Order(6)
     void updateFilmShouldReplaceOldFilm() {
-        filmService.addFilm(films.get(0));
         Film updated = new Film();
         updated.setId(1);
-        updated.setName("eqeqe");
-        updated.setReleaseDate(DateUtility.formatter("1992-11-12"));
+        updated.setName("Evil buba in da forest");
+        updated.setReleaseDate(DateUtility.formatToDate("1992-11-12"));
         updated.setDescription("19");
+        updated.setMpa(new Mpa(4, "R"));
         updated.setDuration(91L);
         Assertions.assertEquals(filmService.updateFilm(updated), filmService.getFilm(1));
     }
 
     @Test
+    @Order(7)
     void updateFilmShouldThrowExceptionIfNotFound() {
-        filmService.addFilm(films.get(0));
         Film updated = new Film();
-        updated.setId(2);
+        updated.setId(3);
         updated.setName("eqeqe");
-        updated.setReleaseDate(DateUtility.formatter("1992-11-12"));
+        updated.setReleaseDate(DateUtility.formatToDate("1992-11-12"));
         updated.setDescription("19");
+        updated.setMpa(new Mpa(4, "R"));
         updated.setDuration(91L);
         final NotFoundException exception = assertThrows(
                 NotFoundException.class,
                 () -> filmService.updateFilm(updated)
         );
-        assertEquals("Фильм 2 НЕ найден.", exception.getMessage(),
+        assertEquals("При обновлении фильма eqeqe произошла ошибка - [id 3] не найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма");
     }
 
     @Test
+    @Order(8)
     void addLikeShouldIncreaseLikesAndSaveUserToUsersLiked() {
         loadUsers();
-        filmService.addFilm(films.get(0));
-        userService.addUser(users.get(0));
-        filmService.addLike(1,1);
-        Assertions.assertEquals(filmService.getFilm(1).getUsersLiked(), Set.of(users.get(0).getId()));
+        int expectedId = userService.addUser(users.get(0)).getId();
+        filmService.addLike(1,expectedId);
+        Assertions.assertEquals(filmService.getFilmLikes(1), List.of(users.get(0)));
     }
 
     @Test
+    @Order(9)
     void addLikeShouldThrowExceptionIfNotFoundOrAlreadyExists() {
         loadUsers();
-        filmService.addFilm(films.get(0));
         final NotFoundException exception1 = assertThrows(
                 NotFoundException.class,
-                () -> filmService.addLike(1,1)
+                () -> filmService.addLike(0,1)
         );
-        assertEquals("Пользователь 1 НЕ найден.", exception1.getMessage(),
+        assertEquals("Невозможно выполнить запрос. Фильм [id 0] и/или пользователь [id 1] не найдены.", exception1.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
-        userService.addUser(users.get(0));
         final NotFoundException exception2 = assertThrows(
                 NotFoundException.class,
-                () -> filmService.addLike(2,1)
+                () -> filmService.addLike(2,5)
         );
-        assertEquals("Фильм 2 НЕ найден.", exception2.getMessage(),
+        assertEquals("Невозможно выполнить запрос. Фильм [id 2] и/или пользователь [id 5] не найдены.", exception2.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
-        filmService.addLike(1,1);
         final AlreadyExistsException exception3 = assertThrows(
                 AlreadyExistsException.class,
                 () -> filmService.addLike(1,1)
         );
-        assertEquals("Пользователь 1 уже ставил лайк фильму 1", exception3.getMessage(),
+        assertEquals("Лайк фильму [id 1] от пользователя [id 1] уже существует.", exception3.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
     }
 
     @Test
+    @Order(10)
     void removeLikeShouldRemoveCorrectUsersLike() {
         loadUsers();
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
-        filmService.addFilm(films.get(0));
-        filmService.addLike(1,1);
-        filmService.addLike(1,2);
         filmService.removeLike(1,1);
-        Assertions.assertEquals(filmService.getFilm(1).getUsersLiked(), Set.of(users.get(1).getId()));
+        Assertions.assertEquals(List.of(), filmService.getFilmLikes(1));
     }
 
     @Test
+    @Order(11)
     void removeLikeShouldThrowExceptionIfNotFound() {
         loadUsers();
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
-        filmService.addFilm(films.get(0));
-        filmService.addLike(1,1);
         final NotFoundException exception1 = assertThrows(
                 NotFoundException.class,
                 () -> filmService.removeLike(1,3)
         );
-        assertEquals("Пользователь 3 НЕ найден.", exception1.getMessage(),
+        assertEquals("Ошибка при удалении лайка. Лайк фильму [id 1] от пользователя [id 3] не найден.", exception1.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
 
         final NotFoundException exception2 = assertThrows(
                 NotFoundException.class,
                 () -> filmService.removeLike(2,1)
         );
-        assertEquals("Фильм 2 НЕ найден.", exception2.getMessage(),
+        assertEquals("Ошибка при удалении лайка. Лайк фильму [id 2] от пользователя [id 1] не найден.", exception2.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
 
         final NotFoundException exception3 = assertThrows(
                 NotFoundException.class,
-                () -> filmService.removeLike(1,2)
+                () -> filmService.removeLike(1,1)
         );
-        assertEquals("Пользователь 2 не ставил лайк фильму 1", exception3.getMessage(),
+        assertEquals("Ошибка при удалении лайка. Лайк фильму [id 1] от пользователя [id 1] не найден.", exception3.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего фильма или пользователя");
     }
 
     @Test
+    @Order(12)
     void getMostlyPopularFilmsShouldReturnListOfFilmsSortedByLikes() {
         loadUsers();
         Film film3 = new Film();
         film3.setName("aboba111");
-        film3.setReleaseDate(DateUtility.formatter("2000-11-12"));
+        film3.setReleaseDate(DateUtility.formatToDate("2000-11-12"));
         film3.setDuration(65L);
+        film3.setMpa(new Mpa(4, "R"));
         film3.setDescription("333");
-        List<Film> sorted = new ArrayList<>();
-        sorted.add(film3);
-        sorted.add(films.get(0));
-        sorted.add(films.get(1));
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
-        filmService.addFilm(films.get(0));
-        filmService.addFilm(films.get(1));
         filmService.addFilm(film3);
+        userService.addUser(users.get(1));
+        List<Film> sorted = new ArrayList<>();
+        sorted.add(filmService.getFilm(3));
+        sorted.add(filmService.getFilm(1));
+        sorted.add(filmService.getFilm(2));
         filmService.addLike(3, 1);
         filmService.addLike(1, 1);
         filmService.addLike(3, 2);
-        Assertions.assertEquals(filmService.getMostlyPopularFilms(3), sorted);
+        Assertions.assertEquals(sorted, filmService.getMostlyPopularFilms(3));
+        filmService.removeAllFilms();
+        userService.removeAllUsers();
     }
 
     private void loadUsers() {
         User user1 = new User();
-        user1.setEmail("aaaa@ya.ru");
-        user1.setBirthday(DateUtility.formatter("2000-11-11"));
-        user1.setLogin("aaaa");
+        user1.setEmail("aaaa1@ya.ru");
+        user1.setBirthday(DateUtility.formatToDate("2000-11-11"));
+        user1.setLogin("aaaa1");
         User user2 = new User();
         user2.setEmail("bbbb@ya.ru");
         user2.setLogin("bbbb");
-        user2.setBirthday(DateUtility.formatter("2000-11-11"));
+        user2.setBirthday(DateUtility.formatToDate("2000-11-11"));
         users.add(user1);
         users.add(user2);
     }

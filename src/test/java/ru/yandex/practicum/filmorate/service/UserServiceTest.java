@@ -1,13 +1,14 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.date.DateUtility;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.util.DateUtility;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,231 +17,193 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Order(2)
 public class UserServiceTest {
-    UserService userService;
+    private final UserService userService;
     List<User> users;
 
     @BeforeEach
     void setParameters() {
-        userService = new UserService(new InMemoryUserStorage());
         users = new ArrayList<>();
         loadUsers();
     }
 
     @Test
+    @Order(1)
     void addUserShouldReturnUser() {
         Assertions.assertEquals(userService.addUser(users.get(0)), users.get(0));
     }
 
     @Test
+    @Order(2)
     void addUserShouldThrowExceptionIfAlreadyExists() {
-        userService.addUser(users.get(0));
         final AlreadyExistsException exception = assertThrows(
                 AlreadyExistsException.class,
                 () -> userService.addUser(users.get(0))
         );
-        assertEquals("Пользователь aaaa@ya.ru уже существует.", exception.getMessage(),
+        assertEquals("Ошибка при создании пользователя - аккаунт с email aaaa@ya.ru или логином aaaa уже существует.",
+                exception.getMessage(),
                 "Не возникает исключение при попытке добавления уже существующего пользователя");
     }
 
     @Test
+    @Order(3)
     void getUsersShouldReturnListOfUsers() {
-        userService.addUser(users.get(0));
         userService.addUser(users.get(1));
         Assertions.assertEquals(userService.getUsers(), users);
     }
 
     @Test
+    @Order(4)
     void getUserShouldReturnCorrectUser() {
-        userService.addUser(users.get(0));
         Assertions.assertEquals(userService.getUser(1), users.get(0));
     }
 
     @Test
+    @Order(5)
     void getUserShouldThrowExceptionIfNotFound() {
-        userService.addUser(users.get(0));
         final NotFoundException exception = assertThrows(
                 NotFoundException.class,
-                () -> userService.getUser(2)
+                () -> userService.getUser(3)
         );
-        assertEquals("Пользователь 2 НЕ найден.", exception.getMessage(),
+        assertEquals("Ошибка при выгрузке. Пользователь [id 3] не найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
     }
 
     @Test
+    @Order(6)
     void updateUserShouldReplaceOldUser() {
-        userService.addUser(users.get(0));
         User updated = new User();
         updated.setId(1);
         updated.setLogin("eqeqe");
-        updated.setEmail("bugi-wugi@ya.ru");
-        updated.setBirthday(DateUtility.formatter("2000-11-11"));
+        updated.setEmail("aaaa@ya.ru");
+        updated.setBirthday(DateUtility.formatToDate("2000-11-11"));
         Assertions.assertEquals(userService.updateUser(updated), userService.getUser(1));
     }
 
     @Test
+    @Order(7)
     void updateUserShouldThrowExceptionIfNotFound() {
-        userService.addUser(users.get(0));
         User updated = new User();
         updated.setId(4);
         updated.setLogin("eqeqe");
         updated.setEmail("bugi-wugi@ya.ru");
-        updated.setBirthday(DateUtility.formatter("2000-11-11"));
+        updated.setBirthday(DateUtility.formatToDate("2000-11-11"));
         final NotFoundException exception = assertThrows(
                 NotFoundException.class,
                 () -> userService.updateUser(updated)
         );
-        assertEquals("Пользователь 4 НЕ найден.", exception.getMessage(),
+        assertEquals("Ошибка при обновлении. Пользователь [id 4] не найден.", exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
     }
 
     @Test
+    @Order(8)
     void addFriendShouldAddUserIdToFriendsSet() {
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
         userService.addFriend(1, 2);
-        Assertions.assertEquals(userService.getUser(1).getFriends(), Set.of(users.get(1).getId()));
-        Assertions.assertEquals(userService.getUser(2).getFriends(), Set.of(users.get(0).getId()));
+        Assertions.assertEquals(List.of(userService.getUser(2)), userService.getFriendList(1));
+        Assertions.assertEquals(List.of(), userService.getFriendList(2));
     }
 
     @Test
+    @Order(9)
     void addFriendShouldThrowExceptionIfNotFound() {
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
         final NotFoundException exception = assertThrows(
                 NotFoundException.class,
                 () -> userService.addFriend(4, 1)
         );
-        assertEquals("Пользователь 4 НЕ найден.", exception.getMessage(),
+        assertEquals("Невозможно выполнить запрос. Пользователь [id 4] и/или пользователь [id 1] не найдены.",
+                exception.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
     }
 
     @Test
+    @Order(10)
     void addFriendShouldThrowExceptionIfAlreadyExists() {
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
-        userService.addFriend(1, 2);
         final AlreadyExistsException exception = assertThrows(
                 AlreadyExistsException.class,
                 () -> userService.addFriend(1, 2)
         );
-        assertEquals("Пользователи 1 и 2 уже друзья.", exception.getMessage(),
+        assertEquals("Пользователь [id 1] уже имеет в друзьях пользователя [id 2]", exception.getMessage(),
                 "Не возникает исключение при попытке повторного добавления в друзья");
     }
 
     @Test
+    @Order(11)
     void removeFriendShouldRemoveUserIdFromFriendsSet() {
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
-        userService.addFriend(1, 2);
         userService.removeFriend(1,2);
         Assertions.assertEquals(userService.getUser(1).getFriends(), Set.of());
         Assertions.assertEquals(userService.getUser(2).getFriends(), Set.of());
     }
 
     @Test
+    @Order(12)
     void removeFriendShouldThrowExceptionIfNotFound() {
         User user3 = new User();
         user3.setEmail("eeee@ya.ru");
         user3.setLogin("eeee");
-        user3.setBirthday(DateUtility.formatter("2000-11-10"));
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
+        user3.setBirthday(DateUtility.formatToDate("2000-11-10"));
         userService.addUser(user3);
         userService.addFriend(1, 2);
         final NotFoundException exception1 = assertThrows(
                 NotFoundException.class,
                 () -> userService.removeFriend(4, 1)
         );
-        assertEquals("Пользователь 4 НЕ найден.", exception1.getMessage(),
+        assertEquals("Ошибка при удалении из друзей. Пользователь [id 4] не имеет в друзьях [id 1].",
+                exception1.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
         final NotFoundException exception2 = assertThrows(
                 NotFoundException.class,
                 () -> userService.removeFriend(3, 1)
         );
-        assertEquals("Пользователи 3 и 1 не находятся в списках друзей друг у друга.", exception2.getMessage(),
+        assertEquals("Ошибка при удалении из друзей. Пользователь [id 3] не имеет в друзьях [id 1].",
+                exception2.getMessage(),
                 "Не возникает исключение при попытке нахождения несуществующего пользователя");
 
     }
 
     @Test
+    @Order(13)
     void getMutualFriendsListShouldReturnListOfMutualFriends() {
-        User user3 = new User();
-        user3.setEmail("eeee@ya.ru");
-        user3.setLogin("eeee");
-        user3.setBirthday(DateUtility.formatter("2000-11-10"));
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
-        userService.addUser(user3);
-        userService.addFriend(1,2);
         userService.addFriend(1,3);
         userService.addFriend(3,2);
-        Assertions.assertEquals(userService.getMutualFriendsList(1,3), List.of(users.get(1)));
-        Assertions.assertEquals(userService.getMutualFriendsList(1,3), List.of(users.get(1)));
+        Assertions.assertEquals(userService.getCommonFriendsList(1,3), List.of(users.get(1)));
+        Assertions.assertEquals(userService.getCommonFriendsList(1,3), List.of(users.get(1)));
     }
 
     @Test
-    void getMutualFriendsListShouldThrowExceptionIfNotFound() {
-        User user3 = new User();
-        user3.setEmail("eeee@ya.ru");
-        user3.setLogin("eeee");
-        user3.setBirthday(DateUtility.formatter("2000-11-10"));
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
-        userService.addUser(user3);
-        userService.addFriend(1,2);
-        userService.addFriend(1,3);
-        userService.addFriend(3,2);
-        final NotFoundException exception = assertThrows(
-                NotFoundException.class,
-                () -> userService.getMutualFriendsList(4,1)
-        );
-        assertEquals("Пользователь 4 НЕ найден.", exception.getMessage(),
-                "Не возникает исключение при попытке нахождения несуществующего пользователя");
+    @Order(14)
+    void getMutualFriendsListShouldReturnEmptySetIfNoSuchFriends() {
+        Assertions.assertEquals(List.of(), userService.getCommonFriendsList(5,1));
     }
 
     @Test
+    @Order(15)
     void getFriendListShouldReturnListOfFriendUsers() {
-        User user3 = new User();
-        user3.setEmail("eeee@ya.ru");
-        user3.setLogin("eeee");
-        user3.setBirthday(DateUtility.formatter("2000-11-10"));
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
-        userService.addUser(user3);
         userService.addFriend(3, 1);
-        userService.addFriend(3,2);
-        Assertions.assertEquals(userService.getFriendList(3), users);
+        Assertions.assertEquals(users, userService.getFriendList(3));
     }
 
     @Test
+    @Order(16)
     void getFriendListShouldThrowExceptionIfNotFound() {
-        User user3 = new User();
-        user3.setEmail("eeee@ya.ru");
-        user3.setLogin("eeee");
-        user3.setBirthday(DateUtility.formatter("2000-11-10"));
-        userService.addUser(users.get(0));
-        userService.addUser(users.get(1));
-        userService.addUser(user3);
-        userService.addFriend(3, 1);
-        userService.addFriend(3,2);
-        final NotFoundException exception = assertThrows(
-                NotFoundException.class,
-                () -> userService.getFriendList(4)
-        );
-        assertEquals("Пользователь 4 НЕ найден.", exception.getMessage(),
-                "Не возникает исключение при попытке нахождения несуществующего пользователя");
+        Assertions.assertEquals(List.of(), userService.getFriendList(4));
+        userService.removeAllUsers();
     }
 
     void loadUsers() {
         User user1 = new User();
         user1.setEmail("aaaa@ya.ru");
-        user1.setBirthday(DateUtility.formatter("2000-11-11"));
+        user1.setBirthday(DateUtility.formatToDate("2000-11-11"));
         user1.setLogin("aaaa");
         User user2 = new User();
         user2.setEmail("bbbb@ya.ru");
         user2.setLogin("bbbb");
-        user2.setBirthday(DateUtility.formatter("2000-11-11"));
+        user2.setBirthday(DateUtility.formatToDate("2000-11-11"));
         users.add(user1);
         users.add(user2);
     }

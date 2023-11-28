@@ -1,5 +1,7 @@
 HELP.md
 target/
+db/
+.db
 .github
 checkstyle.xml
 lombok.config

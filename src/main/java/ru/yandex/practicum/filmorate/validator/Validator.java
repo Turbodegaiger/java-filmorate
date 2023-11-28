@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.validator;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.filmorate.date.DateUtility;
+import ru.yandex.practicum.filmorate.util.DateUtility;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -10,14 +10,14 @@ import java.util.Date;
 
 @Slf4j
 public class Validator {
-    private static final Date EARLIEST_RELEASE = DateUtility.formatter("1895-11-28");
+    private static final Date EARLIEST_RELEASE = DateUtility.formatToDate("1895-11-28");
 
     public static boolean validate(Film film) throws ValidationException {
         try {
             if (film == null ||
                     film.getName().isBlank() ||
                     film.getDescription().length() > 200 ||
-                    film.getReleaseDate().before(EARLIEST_RELEASE) ||
+                    DateUtility.formatToDate(film.getReleaseDate()).before(EARLIEST_RELEASE) ||
                     film.getDuration() < 0) {
                 log.info("Параметры фильма НЕ прошли валидацию: некорректно задано одно или несколько значений.");
                 throw new ValidationException();

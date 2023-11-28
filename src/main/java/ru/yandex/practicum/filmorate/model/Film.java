@@ -1,18 +1,15 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.yandex.practicum.filmorate.util.DateUtility;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -27,20 +24,40 @@ public class Film {
     private Date releaseDate;
     @Min(1)
     private Long duration;
-    @JsonIgnore
-    private Set<Integer> usersLiked = new HashSet<>();
+    private List<Genre> genres;
+    private Mpa mpa;
+    private long rate;
 
-    public Integer getLikesCount() {
-        return usersLiked.size();
+    public Film(String name, String description, Date releaseDate, Long duration, List<Genre> genres, Mpa mpa) {
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.genres = genres;
+        this.mpa = mpa;
     }
 
-    @Override
-    public String toString() {
-        return "Film{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", releaseDate=" + releaseDate +
-                '}';
+    public Film(Integer id, String name, String description, Date releaseDate, Long duration, List<Genre> genres, Mpa mpa) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.genres = genres;
+        this.mpa = mpa;
+    }
+
+    public Film(Integer id, String name, String description, Date releaseDate, Long duration, Mpa mpa) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+    }
+
+    public String getReleaseDate() {
+        return DateUtility.formatToString(releaseDate);
     }
 
     @Override
@@ -54,5 +71,17 @@ public class Film {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getReleaseDate(), getDuration());
+    }
+
+    @Override
+    public String toString() {
+        return "Film{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", releaseDate=" + releaseDate +
+                ", duration=" + duration +
+                ", genres='" + genres + '\'' +
+                ", mpa='" + mpa + '\'' +
+                '}';
     }
 }

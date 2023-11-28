@@ -2,74 +2,95 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.AlreadyExistsException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.dao.LikesDbStorage;
+import ru.yandex.practicum.filmorate.validator.Validator;
 
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
 @Slf4j
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final LikesDbStorage likesDbStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage,
+                       LikesDbStorage likesDbStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.likesDbStorage = likesDbStorage;
     }
 
     public Film addFilm(Film film) {
-        return filmStorage.addFilm(film);
+        Validator.validate(film);
+        Film newFilm = filmStorage.addFilm(film);
+        newFilm.setGenres(filmStorage.getFilmGenres(newFilm.getId()));
+        return newFilm;
     }
 
     public List<Film> getFilms() {
-        return filmStorage.getFilms();
+        List<Film> films = filmStorage.getFilms();
+        for (Film film : films) {
+            film.setGenres(filmStorage.getFilmGenres(film.getId()));
+        }
+        return films;
     }
 
     public Film getFilm(int id) {
-        return filmStorage.getFilm(id);
+        Film film = filmStorage.getFilm(id);
+        film.setGenres(filmStorage.getFilmGenres(id));
+        return film;
     }
 
     public Film updateFilm(Film film) {
-        return filmStorage.updateFilm(film);
+        Validator.validate(film);
+        Film updatedFilm = filmStorage.updateFilm(film);
+        updatedFilm.setGenres(filmStorage.getFilmGenres(updatedFilm.getId()));
+        return updatedFilm;
+    }
+
+    public void removeFilm(int filmId) {
+        filmStorage.removeFilm(filmId);
+    }
+
+    public List<User> getFilmLikes(int filmId) {
+        List<User> users = new ArrayList<>();
+        Set<Integer> usersId = filmStorage.getFilmLikes(filmId);
+        for (Integer id : usersId) {
+            users.add(userStorage.getUser(id).orElse(new User()));
+        }
+        return users;
     }
 
     public void addLike(int filmId, int userId) {
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException("Пользователь " + userId + " НЕ найден.");
-        }
-        boolean isAdded = filmStorage.getFilm(filmId).getUsersLiked().add(userId);
-        if (!isAdded) {
-            log.info("Лайк пользователя {} уже существует на фильме {}.", userId, filmId);
-            throw new AlreadyExistsException(String.format("Пользователь %s уже ставил лайк фильму %s", userId, filmId));
-        }
-        log.info("Фильму {} добавлен лайк пользователя {}.", filmId, userId);
+        likesDbStorage.addLike(filmId, userId);
+        log.info("Фильму [id {}] добавлен лайк пользователя [id {}].", filmId, userId);
     }
 
     public void removeLike(int filmId, int userId) {
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException("Пользователь " + userId + " НЕ найден.");
-        }
-        boolean isRemoved = filmStorage.getFilm(filmId).getUsersLiked().remove(userId);
-        if (!isRemoved) {
-            log.info("Не найден лайк пользователя {} на фильме {}", userId, filmId);
-            throw new NotFoundException(String.format("Пользователь %s не ставил лайк фильму %s", userId, filmId));
-        }
-        log.info("Лайк фильма {} пользователем {} удалён.", filmId, userId);
+        likesDbStorage.removeLike(filmId, userId);
+        log.info("Лайк фильма [id {}] пользователем [id {}] удалён.", filmId, userId);
+    }
+
+    public void removeAllFilms() {
+        filmStorage.removeAllFilms();
     }
 
     public List<Film> getMostlyPopularFilms(int count) {
-        List<Film> mostlyPopularFilms = filmStorage.getFilms().stream()
-                .sorted(Comparator.comparing(Film::getLikesCount).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+        List<Film> mostlyPopularFilms = filmStorage.getMostlyPopular(count);
+        for (Film film : mostlyPopularFilms) {
+            film.setGenres(filmStorage.getFilmGenres(film.getId()));
+        }
         log.info("Список {} самых популярных фильмов: {}.", count, mostlyPopularFilms);
         return mostlyPopularFilms;
     }

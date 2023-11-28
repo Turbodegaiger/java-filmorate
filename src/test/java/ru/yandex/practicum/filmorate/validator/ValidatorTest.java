@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.validator;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.date.DateUtility;
+import ru.yandex.practicum.filmorate.util.DateUtility;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -68,11 +68,11 @@ public class ValidatorTest {
         Film film4 = new Film();
         film4.setName("3");
         film4.setDescription("qeq");
-        film4.setReleaseDate(DateUtility.formatter("1895-11-27"));
+        film4.setReleaseDate(DateUtility.formatToDate("1895-11-27"));
         film4.setDuration(90L);
         okFilm = new Film();
         okFilm.setName("film");
-        okFilm.setReleaseDate(DateUtility.formatter("1895-11-28"));
+        okFilm.setReleaseDate(DateUtility.formatToDate("1895-11-28"));
         okFilm.setDuration(1L);
         okFilm.setDescription("BEST FILM EVAR");
 
@@ -87,7 +87,7 @@ public class ValidatorTest {
         okUser = new User();
         okUser.setEmail("alibaba@40rogues.com");
         okUser.setLogin("XXXalibabaXXX");
-        okUser.setBirthday(DateUtility.formatter("1997-10-10"));
+        okUser.setBirthday(DateUtility.formatToDate("1997-10-10"));
         User user1 = new User();
         user1.setEmail("");
         user1.setLogin("emptyEmail");
@@ -103,7 +103,7 @@ public class ValidatorTest {
         User user5 = new User();
         user5.setEmail("iwantcyberpunkeverywhere@cyber.com");
         user5.setLogin("silverhand");
-        user5.setBirthday(DateUtility.formatter("2077-11-20"));
+        user5.setBirthday(DateUtility.formatToDate("2077-11-20"));
 
         invalidUsers.add(user1);
         invalidUsers.add(user2);
