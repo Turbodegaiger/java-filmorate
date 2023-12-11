@@ -6,6 +6,8 @@ Filmorate project gives a possibility to search movies to watch.
 
 Filmorate даёт возможность добавлять, изменять, искать фильмы, ставить им оценки, заводить друзей и делать всё вышеперечисленное вместе.
 
+Для запуска необходимо собрать проект через Apache Maven командой "mvn clean install", после чего запустить сборку при помощи команды "java -jar <название файла>".
+
 # DB schema
 ![Database scheme](docs/Filmorate_db_scheme.png)
 
