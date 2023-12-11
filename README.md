@@ -1,26 +1,11 @@
 # java-filmorate
-Filmorate project gives a possibility to search movies to watch and do it with your friends.
+Filmorate project gives a possibility to search movies to watch.
+Проект Filmorate даёт возможность искать фильмы, которые можно посмотреть.
 
+Использованные технологии: Spring Boot, Spring Data, Spring MVC, Apache Maven, Hibernate, JUnit, Lombok.
+
+Filmorate даёт возможность добавлять, изменять, искать фильмы, ставить им оценки, заводить друзей и делать всё вышеперечисленное вместе.
+
+# DB schema
 ![Database scheme](docs/Filmorate_db_scheme.png)
 
-# SQL request examples
-Получение списка имён 10 пользователей c наибольшим числом друзей
-SELECT name
-FROM user
-WHERE user_id IN (SELECT user_id
-               FROM friends_confirmed
-               GROUP BY user_id
-               ORDER BY COUNT(friend_id_confirmed) DESC
-               LIMIT 10);
-
-Получение самого популярного жанра фильмов и количество фильмов в этом жанре
-SELECT (SELECT name
-        FROM genre
-        WHERE f.genre_id = genre_id) AS popular_genre,
-	COUNT(f.film_id)
-FROM film AS f
-WHERE f.genre_id IN (SELECT genre_id
-               FROM film
-               GROUP BY genre_id
-               ORDER BY COUNT(genre_id) DESC
-               LIMIT 1);
