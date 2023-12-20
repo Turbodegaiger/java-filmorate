@@ -3,7 +3,11 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.client.KinopoiskClient;
+import ru.yandex.practicum.filmorate.enums.Order;
+import ru.yandex.practicum.filmorate.enums.Type;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -14,10 +18,12 @@ import java.util.List;
 @Slf4j
 public class FilmController {
     private final FilmService filmService;
+    private final KinopoiskClient client;
 
     @Autowired
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, KinopoiskClient client) {
         this.filmService = filmService;
+        this.client = client;
     }
 
     @PostMapping
@@ -37,6 +43,21 @@ public class FilmController {
         log.info("Отправлен ответ на запрос получения списка фильмов, размер списка: {}", response.size());
         return response;
     }
+
+    @GetMapping("/kinopoisk")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> getFilmsFromKinopoisk(
+            @RequestParam(required = false, defaultValue = "RATING") Order order,
+            @RequestParam(required = false, defaultValue = "FILM") Type type,
+            @RequestParam(required = false, defaultValue = "8") Integer ratingFrom,
+            @RequestParam(required = false, defaultValue = "10") Integer ratingTo,
+            @RequestParam(required = false, defaultValue = "") String keyword) {
+        log.info("Принят запрос на получение списка фильмов этого года с Кинопоиска.");
+        ResponseEntity<Object> response = client.getFilms(order.toString(), type.toString(), ratingFrom, ratingTo, keyword);
+        log.info("Отправлен ответ на запрос получения списка фильмов: {}", response);
+        return response;
+    }
+
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
